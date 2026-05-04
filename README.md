@@ -69,6 +69,7 @@ docs/
   business-model.md monetization direction
   characters.md character and mascot direction
   design-direction.md brand and UI direction
+  flow.md full user flow
   game-mode.md playful solo and group game concept
 ```
 
