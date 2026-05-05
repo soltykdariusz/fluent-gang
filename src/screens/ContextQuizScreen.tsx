@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { AppButton } from '../components/AppButton';
+import { Mascot } from '../components/Mascot';
 import { QuizNavButton } from '../components/QuizNavButton';
 import { QuizProgress } from '../components/QuizProgress';
 import { Screen } from '../components/Screen';
@@ -24,6 +25,7 @@ export function ContextQuizScreen({ navigation, route }: Props) {
   const complete = Object.keys(answers).length === lesson.contextQuiz.length;
   const selectedAnswer = answers[question.id];
   const answeredCurrent = selectedAnswer !== undefined;
+  const correctCurrent = selectedAnswer === question.answer;
   const isLastQuestion = currentIndex === lesson.contextQuiz.length - 1;
 
   const answerQuestion = (answer: boolean) => {
@@ -37,20 +39,28 @@ export function ContextQuizScreen({ navigation, route }: Props) {
     }
 
     if (complete) {
-      navigation.navigate('Definitions', { lesson });
+      navigation.navigate('GuidedUsage', {
+        lesson,
+        contextSummary: {
+          answers,
+          score,
+          total: lesson.contextQuiz.length,
+        },
+      });
     }
   };
 
   return (
     <Screen>
       <StepHeader
-        title={t('contextQuiz')}
+        title="True/False Check"
         subtitle={complete ? `Score: ${score}/${lesson.contextQuiz.length}` : 'One word at a time. You can go back before continuing.'}
       />
       <QuizProgress current={currentIndex + 1} total={lesson.contextQuiz.length} />
       <View style={styles.question}>
         <Text style={styles.wordLabel}>{question.wordText ?? 'Word'}</Text>
-        <Text style={styles.statement}>{question.statement}</Text>
+        {question.baseSentence ? <Text style={styles.baseSentence}>{question.baseSentence}</Text> : null}
+        <Text style={styles.statement}>{question.questionText ?? question.statement}</Text>
         <View style={styles.row}>
           <AppButton
             title={t('true')}
@@ -65,7 +75,22 @@ export function ContextQuizScreen({ navigation, route }: Props) {
             icon={<X size={17} color={selectedAnswer === false ? theme.colors.surface : theme.colors.primary} strokeWidth={2.4} />}
           />
         </View>
-        {answeredCurrent ? <Text style={styles.explanation}>{question.explanation}</Text> : null}
+        {answeredCurrent ? (
+          <View style={styles.feedbackBox}>
+            <Mascot
+              state={correctCurrent ? 'happy' : 'oops'}
+              message={correctCurrent ? 'Nice. The word moved a little closer to active vocabulary.' : 'Good attempt. Rescue the meaning and keep moving.'}
+              size={44}
+              loop={false}
+            />
+            <Text style={styles.feedbackTitle}>{correctCurrent ? 'Nice hit.' : 'Good try.'}</Text>
+            <Text style={styles.explanation}>
+              {correctCurrent
+                ? question.feedbackCorrect ?? question.explanation
+                : question.feedbackIncorrect ?? question.explanation}
+            </Text>
+          </View>
+        ) : null}
       </View>
       <View style={styles.navRow}>
         <QuizNavButton
@@ -75,7 +100,7 @@ export function ContextQuizScreen({ navigation, route }: Props) {
           icon={<ChevronLeft size={17} color={theme.colors.primary} strokeWidth={2.4} />}
         />
         <QuizNavButton
-          title={isLastQuestion ? t('definitions') : t('next')}
+          title={isLastQuestion ? 'Mini usage' : t('next')}
           onPress={goNext}
           disabled={!answeredCurrent || (isLastQuestion && !complete)}
           variant="solid"
@@ -107,6 +132,12 @@ const styles = StyleSheet.create({
     lineHeight: 23,
     fontWeight: '700',
   },
+  baseSentence: {
+    color: theme.colors.primary,
+    fontSize: 20,
+    lineHeight: 29,
+    fontWeight: '900',
+  },
   wordLabel: {
     alignSelf: 'flex-start',
     borderRadius: 999,
@@ -133,5 +164,16 @@ const styles = StyleSheet.create({
     color: theme.colors.muted,
     fontSize: 14,
     lineHeight: 20,
+  },
+  feedbackBox: {
+    gap: 3,
+    borderRadius: theme.radius.sm,
+    backgroundColor: theme.colors.primarySoft,
+    padding: theme.spacing.sm,
+  },
+  feedbackTitle: {
+    color: theme.colors.primary,
+    fontSize: 13,
+    fontWeight: '900',
   },
 });

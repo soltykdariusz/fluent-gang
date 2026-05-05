@@ -1,323 +1,381 @@
-# Fluent Gang User Flow
+# Fluent Gang Final MVP Workout Flow
 
-Fluent Gang is a mobile-first language learning app focused on extending vocabulary through context, AI-generated micro-texts, true/false quizzes, shadowing, focus tracking, and spaced repetition.
+Fluent Gang is not a traditional language learning app, not a course app, and not mainly a grammar product.
 
-## 1. Onboarding
+Fluent Gang is a contextual vocabulary growth app focused on extending active vocabulary.
 
-The user chooses:
+## Core Principle
 
-- interface language
-- native language
-- target learning language
+The user learns words through simple context, fast recognition, light usage, and shadowing.
 
-The app should support learning at least 10 popular languages and should be architected for many interface languages in the future.
+Very important:
 
-Initial target learning languages:
+**One new or trained word = one very simple sentence.**
 
-- English
-- Spanish
-- French
-- German
-- Italian
-- Portuguese
-- Polish
-- Japanese
-- Korean
-- Chinese
+Each context sentence must contain exactly one target word. The rest of the sentence must be obvious, simple, and level-appropriate.
 
-## 2. Level Selection
+Good:
 
-The user has two options:
+He was reluctant to speak.
 
-- choose their level manually
-- take a short level test
+Bad:
 
-Manual levels:
+Despite his overwhelming reluctance, he eventually addressed the complicated issue in front of the committee.
 
-- A1
-- A2
-- B1
-- B2
-- C1
-- C2
+Reason: Fluent Gang teaches the word, not reading-comprehension endurance.
 
-The level test should be short and only estimate the user’s level. It should not feel like a school exam.
+## Session Sizes
 
-## 3. Word Discovery
+A session is a vocabulary workout with a selected number of words.
 
-After the level is known, the user can generate 5 or 6 words.
+Session sizes:
 
-The app should support both options:
+- Quick workout: 3 words
+- Standard workout: 5 words
+- Deep workout: 8 words
 
-- 5 words
-- 6 words
+Default session size:
 
-There is a playful inspiration from Nikola Tesla’s 3, 6, 9 idea, but the app should not overuse it.
+- Standard workout, 5 words
 
-For each proposed word, the user can mark it as:
+A user can complete one session per day, many sessions per day, or only reviews. Do not hardcode “5 words per day”. Use “words per session”.
 
-- I know it — remove from learning
-- I recognize it — use for reinforcement
-- New for me — add to lesson
-- Show meanings — show additional meanings if the word has more than one meaning
+## Final MVP Flow
 
-The goal is to let the user consciously choose words before starting a lesson.
+1. Choose session size
+2. Word proposal
+3. Context exposure
+4. True/False check
+5. Mini usage
+6. Shadowing
+7. Summary
 
-## 4. Word Preview
+Definition is not a mandatory full screen in the core flow.
 
-Before generating the lesson, the user sees a preview of selected words.
+Definition is a support layer, not the main learning stage.
 
-Each word should show:
+Product rule:
+
+**Definition is not the lesson. Definition is a rescue tool.**
+
+## 1. Choose Session Size
+
+UI copy:
+
+Choose your workout size
+
+Options:
+
+- Quick workout — 3 words
+- Standard workout — 5 words
+- Deep workout — 8 words
+
+## 2. Word Proposal
+
+The app proposes words for the selected session.
+
+For each word card, show:
 
 - word
-- simple definition in the target learning language
-- example sentence
-- optional translation visible only after clicking
-- additional meanings visible after clicking
-- pronunciation/audio placeholder
+- status: new / familiar / reinforce / review
+- level
+- optional short hint button
+- actions: Learn this, I know this, Reinforce this, Replace
 
-Definitions should be in the language being learned.
+The user can set the session words before starting the workout.
 
-Example: if the user learns English, English words should have English definitions.
+Flow:
 
-## 5. Lesson Mode Selection
+choose session size → receive proposed words → accept/replace/mark words → start workout
 
-After approving 5–6 words, the user chooses a lesson mode:
+Do not show full definitions by default. Allow “Show hint” or “Quick meaning” as optional help.
 
-- News
-- Sport
-- Lifestyle
-- Psychology
-- Super Memory
+## 3. Context Exposure
 
-Super Memory mode should generate an exaggerated, vivid, funny, memorable story that connects all selected words into one single thread. It should use memory techniques, strong associations, absurd imagery, emotional hooks, and clear context.
+Show one sentence per screen.
 
-Future modes may include:
+For a 5-word session:
 
-- Business
-- Tech
-- Travel
-- Daily Conversation
-
-## 6. AI Generated Micro Text
-
-The app generates a short text using all selected words.
-
-The text must be adjusted to the user’s level:
-
-- A1: 1–2 very simple sentences
-- A2: 2–4 simple sentences
-- B1: short paragraph
-- B2: 1–2 short paragraphs
-- C1/C2: more natural and advanced text
-
-All selected words should be bolded.
-
-When the user clicks a bolded word, the app should show:
-
-- definition
-- example
-- other meanings
-- pronunciation/audio
-- option to mark as known
-
-## 7. Reading and Listening Stage
-
-The user can:
-
-- read the text
-- listen to the narrator
-- do both
-
-After finishing, the user marks:
-
-- I read it
-- I listened
-- I’m ready
-
-Then the user moves to the context quiz.
-
-## 8. Context True/False Quiz
-
-The quiz should have one question per screen.
-
-Each question should refer to the generated text and check whether the user understood the practiced words in context.
-
-Example question:
-
-“In the text, reliable means that someone can be trusted.”
-
-True / False
-
-Feedback should be positive and progress-focused.
-
-If the user answers correctly:
-
-- show a small animation or reward
-- reinforce progress
-
-If the user answers incorrectly:
-
-- do not shame the user
-- show helpful feedback
-- refer back to the relevant part of the text
-- encourage another try
-
-The goal is engagement and progress, not school-style grading.
-
-## 9. Quiz Result
-
-At the end, show:
-
-- score
-- number of trained words
-- number of words strengthened
-- words that need more practice
-- completed focus time if available
-
-The message should emphasize consistency and progress.
+- 5 context screens
+- each screen contains 1 target word
+- each screen contains 1 simple sentence
+- target word highlighted
+- progress indicator, for example Word 1/5
 
 Example:
 
-“You trained 6 words today. 4 are stronger now. 2 will come back soon.”
+Word 1/5
 
-## 10. Shadowing Stage
+He was reluctant to speak.
 
-After the quiz, the app gives the user a shadowing text.
+Actions:
 
-The shadowing text should:
+- I understand
+- Show hint
 
-- use the same selected words again
-- preferably use them in a slightly different context
-- be level-adjusted
-- be easy to read aloud
-- support narrator audio
-- support adjustable playback speed
-- support subtitles on/off
+Rules:
 
-The user listens, reads, and repeats after the narrator.
+- exactly one target word per sentence
+- no translation by default
+- no long article
+- no paragraph
+- no wall of text
 
-For MVP, the app does not need to check pronunciation.
+## 4. True/False Check
 
-The user self-assesses:
+Purpose: check whether the user understood the word from context.
 
-- Easy
-- Okay
-- Hard
+Show one question per screen.
 
-The main goal is to understand what they say and reinforce active vocabulary.
+Each question should be based on the simple context sentence.
 
-## 11. Review Scheduling
+For each word:
 
-After shadowing, the app schedules future review using spaced repetition / forgetting curve logic.
+- show the original sentence or a short reference
+- ask a true/false question
+- provide short friendly feedback
+- track correctness and response time
 
-Example intervals:
+Example:
 
-- 1 day
-- 3 days
-- 7 days
-- 14 days
-- 30 days
+Context:
 
-After completing the lesson, show a message:
+He was reluctant to speak.
 
-“Nice. These words will come back tomorrow.”
+Question:
 
-or
+He really wanted to speak.
 
-“Next review: in 3 days.”
+Correct answer:
 
-## 12. Review Mode
+False
 
-When the user returns to a word set for review, they can:
+Feedback:
 
-- reuse the previous text
-- generate a new text with the same words
-- take a quick true/false quiz
-- do shadowing again
+Correct. He did not really want to speak.
 
-Generating a new context is important because it helps the user understand words more deeply instead of memorizing one sentence.
+## 5. Mini Usage
 
-## 13. Word Progress States
+Purpose: the user tries to use the word with almost zero friction.
 
-Each word should have a progress state:
+Avoid typing in MVP. The user should associate and tap, not write long sentences.
 
-- New
-- Recognized
-- Practiced
-- Familiar
-- Active vocabulary
-- Mastered
+Use only two exercise types in MVP.
 
-The app should track both:
+### Insert Word
 
-- passive vocabulary — words the user understands
-- active vocabulary — words the user can use
+Example:
 
-## 14. Vocabulary Map
+He was ______ to speak.
 
-The app should eventually show a vocabulary progress dashboard:
+Options:
 
-- Active vocabulary count
-- Recognized vocabulary count
-- Words reviewed today
-- Words to review today
-- Strong words this week
-- Current streak
-- Focus time
+- reluctant
+- excited
+- proud
 
-This reinforces the idea that the user’s vocabulary is growing.
+Rules:
 
-## 15. Focus Tracking
+- one blank
+- one correct target word
+- two simple distractors
+- sentence contains only one trained word
+- user taps the answer
 
-The app should include a focus timer/session tracker.
+### Choose Correct Usage
 
-The goal:
+Example:
 
-- encourage distraction-free learning
-- measure how much focused time the user spends learning
-- connect focus time with progress
+Which is correct?
 
-A focus session can start when the lesson begins and end after shadowing or review.
+A. reluctant to go  
+B. reluctant go
 
-## 16. Product Positioning
+Rules:
 
-The app is not just flashcards.
+- two options only
+- one correct usage
+- one common incorrect usage
+- short feedback only
+- no long grammar explanation
 
-The app is not a school test.
+Mini usage is not a writing exercise. It is a tiny activation step.
 
-The app is not only an AI tutor.
+## 6. Shadowing
 
-Core positioning:
+Shadowing is a core part of the flow.
 
-“Extend your vocabulary through stories, context, and shadowing.”
+Purpose: the user hears and repeats the target word in multiple simple contexts.
 
-Alternative:
+Shadowing should not show one mixed text with all words.
 
-“Fluent Gang helps you turn new words into real vocabulary.”
+For each target word:
 
-## 17. MVP Priorities
+- show the word as title
+- show 3-5 very simple sentences using this one word
+- each sentence uses the target word naturally
+- contexts vary slightly
+- user can play audio
+- user can control playback speed
+- user marks the word as done
 
-The first MVP should include:
+Example:
 
-1. onboarding
-2. level selection or short level test placeholder
-3. word generation with 5 or 6 words
-4. word status selection
-5. word preview with definitions
-6. mode selection
-7. mock AI generated text
-8. reading/listening screen
-9. true/false context quiz
-10. result screen
-11. shadowing screen
-12. simple review scheduling
-13. basic word progress states
+reluctant
 
-Keep the first implementation simple.
+I was reluctant at first.  
+She was reluctant to answer.  
+He seemed reluctant to join us.  
+They were reluctant to change the plan.  
+Tom is reluctant to speak today.
 
-Use mock data where needed.
+Controls:
 
-Do not over-engineer.
+- Play
+- 0.75x
+- 1x
+- 1.25x
+- Done
 
-The goal is to create a clear flow and build the smallest usable version first.
+Audio can be mocked in MVP, but the UI should support future audio integration.
+
+## 7. Summary
+
+After completing the session, show:
+
+- session completed
+- number of words trained
+- words that improved
+- words scheduled for review
+- next review suggestion
+- progress circle update
+
+Example:
+
+Workout complete.
+
+5 words trained.  
+2 words feel stronger.  
+3 words will return for review.  
+Next rescue: tomorrow.
+
+Actions:
+
+- Back Home
+- Start another workout
+
+The summary should feel motivating, not like grading.
+
+## Navigation Rules
+
+- Home always returns to the main Home dashboard.
+- During workout, use a focused layout.
+- Hide unnecessary dashboard UI during the workout.
+- Show an X button to exit the workout.
+- If the user exits mid-workout, ask:
+  - Save progress and exit
+  - Discard session
+  - Continue workout
+
+Workout route structure:
+
+- SessionSize
+- WordProposal
+- ContextExposure
+- TrueFalseCheck
+- MiniUsage
+- Shadowing
+- Summary
+
+## Data Model
+
+Session:
+
+- id
+- userId
+- targetLanguage
+- level
+- sessionSize: 3 | 5 | 8
+- selectedWords
+- contextSentences
+- trueFalseQuestions
+- miniUsageExercises
+- shadowingSets
+- startedAt
+- completedAt
+- status: active | completed | abandoned
+
+SelectedWord:
+
+- id
+- text
+- language
+- level
+- status: new | familiar | reinforce | review
+- hint
+- simpleMeaning
+- commonPattern
+
+ContextSentence:
+
+- wordId
+- targetWord
+- sentence
+- hint
+- level
+
+TrueFalseQuestion:
+
+- wordId
+- contextSentence
+- questionText
+- correctAnswer
+- feedbackCorrect
+- feedbackIncorrect
+
+MiniUsageExercise:
+
+- wordId
+- type: insert_word | correct_usage
+- prompt
+- options
+- correctOptionId
+- feedbackCorrect
+- feedbackIncorrect
+
+ShadowingSet:
+
+- wordId
+- targetWord
+- sentences: string[]
+- playbackSpeedOptions: 0.75 | 1 | 1.25
+- audioUrl optional / TODO for MVP
+
+## UX Principles
+
+1. The user should never feel lost.
+2. One screen should have one clear action.
+3. Avoid walls of text.
+4. Avoid typing in MVP.
+5. Avoid long articles in MVP.
+6. Avoid grammar-course feeling.
+7. Definitions are optional help, not the main lesson.
+8. Context comes first.
+9. Mini usage should be almost obvious but still active.
+10. Shadowing should repeat one word in several simple contexts.
+11. The app should feel like the user is flowing and absorbing vocabulary.
+12. The app should help the user understand the word so clearly that it becomes hard not to remember it.
+
+## Duolingo-Inspired Qualities
+
+Use as inspiration only:
+
+- friendly guided flow
+- mascot/guide moments
+- quick wins
+- visible progress
+- small celebrations after success
+- daily habit feeling
+- lightweight screens
+
+Do not copy Duolingo directly. Fluent Gang’s identity is active vocabulary growth.

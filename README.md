@@ -1,6 +1,6 @@
 # Fluent Gang
 
-Mobile-first MVP foundation for an AI-powered language learning app.
+Mobile-first MVP foundation for a contextual vocabulary growth engine.
 
 **App name:** Fluent Gang  
 **Slogan:** You can be fluent.
@@ -13,10 +13,13 @@ Mobile-first MVP foundation for an AI-powered language learning app.
 - 10 target learning languages in the app model
 - i18n setup with English and Polish starter copy
 - Light/dark theme foundation with system, light, and dark preferences
+- Contextual vocabulary acquisition direction with memory stages and word state modeling
 - Vocabulary selection with 5 proposed words and custom-word entry
-- Lesson mode selection: News, Sport, Lifestyle, Super Memory
-- Mock AI lesson generation with an OpenAI-ready prompt builder
-- Reading/listening placeholder, true/false quizzes, definitions, shadowing placeholder
+- Lesson mode selection: Standard Context, Funny Story, Dialogue, Super Memory
+- Mock Word Workout generation with an OpenAI-ready prompt builder
+- Session size selection: Quick 3, Standard 5, Deep 8 words
+- Context Exposure with one simple sentence per target word
+- True/False Check, Mini Usage, and per-word Shadowing placeholder
 - Local progress and focus session tracking with Zustand + AsyncStorage
 - Supabase client setup and initial SQL schema
 - `.env.example` for configuration
@@ -68,6 +71,7 @@ docs/
   architecture.md  architecture notes
   business-model.md monetization direction
   characters.md character and mascot direction
+  contextual-vocabulary-engine.md core product definition
   design-direction.md brand and UI direction
   flow.md full user flow
   game-mode.md playful solo and group game concept
@@ -84,6 +88,12 @@ See `docs/design-direction.md` for the design principles and quality bar.
 Fluent Gang should eventually include a small cast of premium, funny, memorable characters. They should make the app warmer and less technical while supporting learning moments, celebrations, Super Memory, shadowing, and game mode.
 
 See `docs/characters.md` for the character system concept.
+
+## Mascot System
+
+The MVP includes a reusable `Mascot` component with states: idle, thinking, happy, oops, celebrate, and encourage. It currently uses a static animated placeholder and is ready for future Lottie files through `src/constants/mascotAnimations.ts`.
+
+If Lottie assets are missing, the app falls back gracefully and does not block the workout flow.
 
 ## Game Mode Direction
 
@@ -121,7 +131,17 @@ The schema supports:
 
 ## OpenAI Integration Plan
 
-Current lesson generation is mocked in `src/services/openaiLessonService.ts`.
+Current Word Workout generation is mocked in `src/services/openaiLessonService.ts`.
+
+Important MVP rule:
+
+**One new word = one simple sentence.**
+
+The app should not generate long articles or complex stories as the default MVP learning experience. For each selected word, the generator should create one very simple context sentence, one true/false check, one mini usage exercise, and one shadowing set with 3-5 simple sentences.
+
+Definitions are optional support, not the core lesson stage:
+
+**Definition is not the lesson. Definition is a rescue tool.**
 
 Next step:
 
@@ -129,7 +149,7 @@ Next step:
 2. Store `OPENAI_API_KEY` as a Supabase secret.
 3. Send selected words, language settings, level, and mode from the app.
 4. Validate the JSON response server-side.
-5. Persist generated lessons and quiz data to Supabase.
+5. Persist generated word workout sessions and quiz data to Supabase.
 
 The prompt structure is already centralized in `buildLessonPrompt`.
 

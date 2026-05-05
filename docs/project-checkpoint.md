@@ -1,6 +1,6 @@
 # Fluent Gang Project Checkpoint
 
-This document captures the current product and implementation assumptions after the first MVP foundation pass.
+This document captures the current product and implementation assumptions after the MVP flow refactor.
 
 ## Current Corrections
 
@@ -11,22 +11,31 @@ This document captures the current product and implementation assumptions after 
 5. The slogan is not fully resolved. Branding currently says "You can be fluent.", while the bottom dock says "You will be fluent."
 6. Fluent Gang characters are a concept documented in `docs/characters.md`; they are not implemented yet.
 7. Game mode, social competition, company plans, and monetization are product concepts, not current MVP runtime features.
+8. Fluent Gang is now defined as a contextual vocabulary growth engine, not a general language learning app.
+9. English may be the first fully supported MVP target vocabulary language, but the product is not conceptually English-first.
+10. The final MVP learning flow is session-based and sentence-based: one new/trained word equals one simple context sentence.
+11. Long texts, articles, and complex stories are de-emphasized for MVP runtime. Super Memory can influence hints and hooks, but the core context stays short and obvious.
+12. A session is not hardcoded as “5 words per day”. Users choose Quick 3, Standard 5, or Deep 8 words per session.
+13. Definition is not a mandatory lesson stage. Definition is a rescue/help layer.
 
 ## Current Runtime MVP
 
 - Expo React Native app with TypeScript.
 - Local onboarding and language/level selection.
-- Mock vocabulary and mock lesson generation.
-- Reading, context quiz, definitions, definition quiz, shadowing, focus timer, and progress placeholders.
+- Mock vocabulary and mock Word Workout generation.
+- Session size selection before word proposal.
+- Context Exposure with one simple sentence per screen.
+- True/False Check, Mini Usage, per-word Shadowing, focus timer, and progress placeholders.
 - 2-second mock ad gate before lesson generation.
-- Bottom dock with Home, timer, brand link, and level progress.
+- Bottom tab navigation with Home, Workout, Review, Progress, and Settings.
 - Initial light/dark theme foundation.
 
 ## Next Recommended Slice
 
-Build a stronger lesson completion loop:
+Make the core Word Workout feel more guided and rewarding:
 
-- pass real quiz scores through the lesson flow
-- add a Lesson Complete screen
-- update word progress more realistically
-- prepare review scheduling from actual lesson results
+- add small celebration animations after correct answers
+- improve mascot/guide presence during onboarding and workout
+- track response time and update word states per exercise
+- make review sessions use rotated one-word contexts
+- prepare Supabase/OpenAI integration around sentence-based sessions

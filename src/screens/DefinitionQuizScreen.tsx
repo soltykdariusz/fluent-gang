@@ -15,7 +15,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'DefinitionQuiz'>;
 
 export function DefinitionQuizScreen({ navigation, route }: Props) {
   const { t } = useTranslation();
-  const { lesson } = route.params;
+  const { lesson, contextSummary } = route.params;
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const question = lesson.definitionQuiz[currentIndex];
@@ -36,7 +36,15 @@ export function DefinitionQuizScreen({ navigation, route }: Props) {
     }
 
     if (complete) {
-      navigation.navigate('Shadowing', { lesson });
+      navigation.navigate('GuidedUsage', {
+        lesson,
+        contextSummary,
+        definitionSummary: {
+          answers,
+          score,
+          total: lesson.definitionQuiz.length,
+        },
+      });
     }
   };
 

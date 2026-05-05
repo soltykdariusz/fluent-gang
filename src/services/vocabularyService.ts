@@ -9,10 +9,14 @@ export function getProposedWords(language: LanguageCode, level: LevelCode): Word
 }
 
 export function createCustomWord(text: string, language: LanguageCode, level: LevelCode): Word {
+  const cleanText = text.trim();
   return {
     id: `custom-${Date.now()}`,
-    text: text.trim(),
+    text: cleanText,
     language,
     level,
+    definition: `A simple definition for "${cleanText}" will be generated later.`,
+    example: `I can use "${cleanText}" in a sentence.`,
+    additionalMeanings: [],
   };
 }
