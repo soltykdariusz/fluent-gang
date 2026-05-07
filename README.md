@@ -14,12 +14,14 @@ Mobile-first MVP foundation for a contextual vocabulary growth engine.
 - i18n setup with English and Polish starter copy
 - Light/dark theme foundation with system, light, and dark preferences
 - Contextual vocabulary acquisition direction with memory stages and word state modeling
-- Vocabulary selection with 5 proposed words and custom-word entry
+- Vocabulary selection with proposed words and custom-word entry
 - Lesson mode selection: Standard Context, Funny Story, Dialogue, Super Memory
 - Mock Word Workout generation with an OpenAI-ready prompt builder
-- Session size selection: Quick 3, Standard 5, Deep 8 words
+- Session size selection: Solo 1, Quick 3, Standard 5, Deep 8 words
+- Word Workout hub with Read, Check, Use, Speak, Feel, Same / Different, Best Sentence, and Fast Flash
 - Context Exposure with one simple sentence per target word
-- True/False Check, Mini Usage, and per-word Shadowing placeholder
+- True/False Check, Mini Usage, Speak with simple TTS, and lightweight extra practice modes
+- Finish Workout flow with word self-assessment
 - Local progress and focus session tracking with Zustand + AsyncStorage
 - Supabase client setup and initial SQL schema
 - `.env.example` for configuration
@@ -81,6 +83,8 @@ docs/
 
 Fluent Gang should feel premium, calm, and carefully made. The green brand direction should suggest correctness, progress, and focus. UI should use consistent SVG icons wherever they improve clarity, with a refined product character rather than loud gamification.
 
+The shared color palette lives in `src/theme/palette.ts`. App components should use theme tokens from `src/theme/theme.ts` instead of hardcoded colors.
+
 See `docs/design-direction.md` for the design principles and quality bar.
 
 ## Character Direction
@@ -94,6 +98,8 @@ See `docs/characters.md` for the character system concept.
 The MVP includes a reusable `Mascot` component with states: idle, thinking, happy, oops, celebrate, and encourage. It currently uses a static animated placeholder and is ready for future Lottie files through `src/constants/mascotAnimations.ts`.
 
 If Lottie assets are missing, the app falls back gracefully and does not block the workout flow.
+
+The current mascot concept board is stored at `assets/reference/gangImg.png`. See `docs/mascot-direction.md` for the character direction.
 
 ## Game Mode Direction
 
@@ -135,9 +141,9 @@ Current Word Workout generation is mocked in `src/services/openaiLessonService.t
 
 Important MVP rule:
 
-**One new word = one simple sentence.**
+**One word = one simple sentence.**
 
-The app should not generate long articles or complex stories as the default MVP learning experience. For each selected word, the generator should create one very simple context sentence, one true/false check, one mini usage exercise, and one shadowing set with 3-5 simple sentences.
+The app should not generate long articles or complex stories as the default MVP learning experience. For each selected word, the generator should create one very simple context sentence, one true/false check, one mini usage exercise, and one Speak set with 3-5 simple sentences.
 
 Definitions are optional support, not the core lesson stage:
 

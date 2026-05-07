@@ -43,6 +43,10 @@ export function navigateProgress() {
   resetTo('Progress');
 }
 
+export function navigateFocus() {
+  resetTo('FocusSession');
+}
+
 export function navigateSettings() {
   resetTo('Settings');
 }

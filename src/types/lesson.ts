@@ -2,7 +2,7 @@ import { LanguageCode, LevelCode } from './language';
 import { MemoryHook } from './vocabulary';
 
 export type LessonMode = 'standardContext' | 'funnyStory' | 'dialogue' | 'superMemory';
-export type SessionSize = 3 | 5 | 8;
+export type SessionSize = 1 | 3 | 5 | 8;
 export type SessionStatus = 'active' | 'completed' | 'abandoned';
 
 export type WordDiscoveryStatus = 'known' | 'recognized' | 'new';
@@ -146,3 +146,5 @@ export type QuizSummary = {
   score: number;
   total: number;
 };
+
+export type WordSelfAssessmentStatus = 'new' | 'recognized' | 'active';

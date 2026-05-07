@@ -1,14 +1,14 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useMemo, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { AnimatedReveal } from '../components/AnimatedReveal';
 import { AppButton } from '../components/AppButton';
-import { OptionCard } from '../components/OptionCard';
+import { Mascot } from '../components/Mascot';
 import { Screen } from '../components/Screen';
-import { StepHeader } from '../components/StepHeader';
 import { createCustomWord } from '../services/vocabularyService';
 import { selectWordsForVocabularyGrowth } from '../services/wordSelectionService';
 import { useAppStore } from '../store/useAppStore';
+import { useTheme } from '../theme/ThemeProvider';
 import { theme } from '../theme/theme';
 import { SelectedWord, Word, WordDiscoveryStatus } from '../types/lesson';
 import { RootStackParamList } from '../types/navigation';
@@ -16,7 +16,7 @@ import { RootStackParamList } from '../types/navigation';
 type Props = NativeStackScreenProps<RootStackParamList, 'VocabularySelection'>;
 
 export function VocabularySelectionScreen({ navigation, route }: Props) {
-  const { t } = useTranslation();
+  const appTheme = useTheme();
   const { targetLanguage, level, selectedInterests } = useAppStore();
   const sessionSize = route.params?.sessionSize ?? 5;
   const proposedScores = useMemo(
@@ -59,29 +59,64 @@ export function VocabularySelectionScreen({ navigation, route }: Props) {
 
   return (
     <Screen>
-      <StepHeader title="Word proposal" subtitle={`${selectedWords.length}/${sessionSize} selected. Definitions are rescue tools, not the lesson.`} />
+      <Mascot
+        state="thinking"
+        message={`These are my proposals for you. Check if they fit. ${selectedWords.length}/${sessionSize} selected.`}
+        size={74}
+      />
       {availableWords.map((word) => (
-        <View key={word.id} style={styles.wordCard}>
-          <OptionCard
-            title={word.text}
-            subtitle={proposedScores.find((item) => item.word.id === word.id)?.reasons.join(' · ') || word.level}
-            selected={(wordStatuses[word.id] ?? 'new') !== 'known'}
-            onPress={() => setWordStatus(word, 'new')}
-          />
-          <View style={styles.statusRow}>
-            <AppButton title="Learn" onPress={() => setWordStatus(word, 'new')} variant={(wordStatuses[word.id] ?? 'new') === 'new' ? 'primary' : 'secondary'} />
-            <AppButton title="Known" onPress={() => setWordStatus(word, 'known')} variant={(wordStatuses[word.id] ?? 'new') === 'known' ? 'primary' : 'secondary'} />
-            <AppButton title="Reinforce" onPress={() => setWordStatus(word, 'recognized')} variant={(wordStatuses[word.id] ?? 'new') === 'recognized' ? 'primary' : 'secondary'} />
+        <View key={word.id} style={[styles.wordCard, { backgroundColor: appTheme.colors.surface }]}>
+          <View style={styles.wordHeader}>
+            <View style={styles.wordCopy}>
+              <Text style={[styles.wordText, { color: appTheme.colors.text }]}>{word.text}</Text>
+              <Text style={[styles.wordMeta, { color: appTheme.colors.muted }]}>
+                {proposedScores.find((item) => item.word.id === word.id)?.reasons.join(' · ') || word.level}
+              </Text>
+            </View>
+            <Text style={[styles.levelPill, { color: appTheme.colors.primary, backgroundColor: appTheme.colors.primarySoft }]}>
+              {word.level}
+            </Text>
           </View>
-          {visibleHints[word.id] ? (
-            <Text style={styles.hint}>Hint: {word.definition ?? `A quick meaning for "${word.text}" will be generated.`}</Text>
-          ) : null}
-          <AppButton title="Replace" onPress={() => setWordStatus(word, 'known')} variant="secondary" />
-          <AppButton
-            title={visibleHints[word.id] ? 'Hide hint' : 'Hint'}
-            onPress={() => setVisibleHints({ ...visibleHints, [word.id]: !visibleHints[word.id] })}
-            variant="secondary"
-          />
+          <View style={[styles.segmented, { backgroundColor: appTheme.colors.background }]}>
+            {[
+              { label: 'Learn', status: 'new' as WordDiscoveryStatus },
+              { label: 'Known', status: 'known' as WordDiscoveryStatus },
+              { label: 'Reinforce', status: 'recognized' as WordDiscoveryStatus },
+            ].map((item) => {
+              const selected = (wordStatuses[word.id] ?? 'new') === item.status;
+              return (
+                <Pressable
+                  key={item.status}
+                  accessibilityRole="button"
+                  onPress={() => setWordStatus(word, item.status)}
+                  style={[styles.segment, selected ? { backgroundColor: appTheme.colors.primary } : null]}
+                >
+                  <Text style={[styles.segmentText, { color: selected ? appTheme.colors.surface : appTheme.colors.muted }]}>
+                    {item.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <AnimatedReveal visible={Boolean(visibleHints[word.id])}>
+            <Text style={[styles.hint, { color: appTheme.colors.text, backgroundColor: appTheme.colors.warningSoft }]}>
+              Hint: {word.definition ?? `A quick meaning for "${word.text}" will be generated.`}
+            </Text>
+          </AnimatedReveal>
+          <View style={styles.inlineActions}>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => setVisibleHints({ ...visibleHints, [word.id]: !visibleHints[word.id] })}
+              style={styles.inlineAction}
+            >
+              <Text style={[styles.inlineActionText, { color: appTheme.colors.accent }]}>
+                {visibleHints[word.id] ? 'Hide hint' : 'Hint'}
+              </Text>
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={() => setWordStatus(word, 'known')} style={styles.inlineAction}>
+              <Text style={[styles.inlineActionText, { color: appTheme.colors.muted }]}>Replace</Text>
+            </Pressable>
+          </View>
         </View>
       ))}
       <View style={styles.customRow}>
@@ -109,10 +144,55 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
   },
   wordCard: {
+    borderRadius: theme.radius.md,
+    padding: theme.spacing.md,
     gap: theme.spacing.sm,
   },
-  statusRow: {
-    gap: theme.spacing.sm,
+  wordHeader: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: theme.spacing.md,
+  },
+  wordCopy: {
+    flex: 1,
+    gap: 3,
+  },
+  wordText: {
+    fontSize: 20,
+    lineHeight: 25,
+    fontWeight: '900',
+  },
+  wordMeta: {
+    fontSize: 12,
+    lineHeight: 17,
+    fontWeight: '700',
+  },
+  levelPill: {
+    overflow: 'hidden',
+    borderRadius: 999,
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: 4,
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  segmented: {
+    minHeight: 38,
+    borderRadius: 999,
+    flexDirection: 'row',
+    padding: 3,
+  },
+  segment: {
+    flex: 1,
+    minHeight: 32,
+    borderRadius: 999,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  segmentText: {
+    fontSize: 12,
+    fontWeight: '900',
   },
   input: {
     minHeight: 50,
@@ -125,8 +205,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   hint: {
-    color: theme.colors.muted,
+    overflow: 'hidden',
+    borderRadius: theme.radius.sm,
+    padding: theme.spacing.sm,
     fontSize: 13,
     lineHeight: 18,
+    fontWeight: '700',
+  },
+  inlineActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: theme.spacing.md,
+  },
+  inlineAction: {
+    paddingVertical: 2,
+  },
+  inlineActionText: {
+    fontSize: 13,
+    fontWeight: '900',
   },
 });

@@ -21,6 +21,7 @@ import { LevelSelectionScreen } from '../screens/LevelSelectionScreen';
 import { NativeLanguageScreen } from '../screens/NativeLanguageScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { ProgressScreen } from '../screens/ProgressScreen';
+import { PracticeModeScreen } from '../screens/PracticeModeScreen';
 import { ReadingLessonScreen } from '../screens/ReadingLessonScreen';
 import { QuizResultScreen } from '../screens/QuizResultScreen';
 import { ReviewScreen } from '../screens/ReviewScreen';
@@ -29,6 +30,7 @@ import { SplashScreen } from '../screens/SplashScreen';
 import { SessionSizeScreen } from '../screens/SessionSizeScreen';
 import { SessionSummaryScreen } from '../screens/SessionSummaryScreen';
 import { ShadowingScreen } from '../screens/ShadowingScreen';
+import { StreakCelebrationScreen } from '../screens/StreakCelebrationScreen';
 import { TargetLanguageScreen } from '../screens/TargetLanguageScreen';
 import { VocabularySelectionScreen } from '../screens/VocabularySelectionScreen';
 import { VocabularyGoalSelectionScreen } from '../screens/VocabularyGoalSelectionScreen';
@@ -38,6 +40,8 @@ import { ReminderPermissionScreen } from '../screens/ReminderPermissionScreen';
 import { WeeklySummaryScreen } from '../screens/WeeklySummaryScreen';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
 import { WordPreviewScreen } from '../screens/WordPreviewScreen';
+import { WorkoutFinishScreen } from '../screens/WorkoutFinishScreen';
+import { WorkoutSelfAssessmentScreen } from '../screens/WorkoutSelfAssessmentScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -86,7 +90,11 @@ export function AppNavigator() {
         <Stack.Screen name="DefinitionQuiz" component={DefinitionQuizScreen} />
         <Stack.Screen name="GuidedUsage" component={GuidedUsageScreen} />
         <Stack.Screen name="Shadowing" component={ShadowingScreen} />
+        <Stack.Screen name="PracticeMode" component={PracticeModeScreen} />
+        <Stack.Screen name="WorkoutFinish" component={WorkoutFinishScreen} />
+        <Stack.Screen name="WorkoutSelfAssessment" component={WorkoutSelfAssessmentScreen} />
         <Stack.Screen name="SessionSummary" component={SessionSummaryScreen} />
+        <Stack.Screen name="StreakCelebration" component={StreakCelebrationScreen} />
         <Stack.Screen name="Review" component={ReviewScreen} />
         <Stack.Screen name="FocusSession" component={FocusSessionScreen} />
         <Stack.Screen name="Progress" component={ProgressScreen} />

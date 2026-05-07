@@ -25,9 +25,42 @@ export function LessonGenerationScreen({ navigation, route }: Props) {
       level,
       sessionSize: route.params.sessionSize,
     })
-      .then((lesson) => navigation.replace('ReadingLesson', { lesson }))
+      .then((lesson) => {
+        const startModule = route.params.startModule ?? 'read';
+        if (startModule === 'check') {
+          navigation.replace('ContextQuiz', { lesson, completedModules: [] });
+          return;
+        }
+        if (startModule === 'use') {
+          navigation.replace('GuidedUsage', { lesson, completedModules: [] });
+          return;
+        }
+        if (startModule === 'speak') {
+          navigation.replace('Shadowing', { lesson, completedModules: [] });
+          return;
+        }
+        if (
+          startModule === 'feel' ||
+          startModule === 'sameDifferent' ||
+          startModule === 'bestSentence' ||
+          startModule === 'fastFlash'
+        ) {
+          navigation.replace('PracticeMode', { lesson, module: startModule, completedModules: [] });
+          return;
+        }
+        navigation.replace('ReadingLesson', { lesson, completedModules: [] });
+      })
       .catch(() => setError('Could not generate lesson. Please try again.'));
-  }, [level, nativeLanguage, navigation, route.params.mode, route.params.selectedWords, route.params.sessionSize, targetLanguage]);
+  }, [
+    level,
+    nativeLanguage,
+    navigation,
+    route.params.mode,
+    route.params.selectedWords,
+    route.params.sessionSize,
+    route.params.startModule,
+    targetLanguage,
+  ]);
 
   return (
     <Screen scroll={false}>

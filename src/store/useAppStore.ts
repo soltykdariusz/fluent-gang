@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import i18n from '../i18n';
 import { ThemePreference } from '../theme/theme';
 import { InterfaceLanguageCode, LanguageCode, LevelCode } from '../types/language';
-import { LessonResult } from '../types/lesson';
+import { LessonResult, WordSelfAssessmentStatus } from '../types/lesson';
 import { InterestCode, VocabularyGoal } from '../types/vocabulary';
 
 type AppState = {
@@ -20,6 +20,7 @@ type AppState = {
   preferredSessionSize: number;
   remindersEnabled?: boolean;
   completedLessons: LessonResult[];
+  wordAssessments: Record<string, WordSelfAssessmentStatus>;
   focusSecondsToday: number;
   focusTargetSeconds: number;
   focusRemainingSeconds: number;
@@ -38,6 +39,7 @@ type AppState = {
   setPreferredSessionSize: (size: number) => void;
   setRemindersEnabled: (enabled: boolean) => void;
   addLessonResult: (result: LessonResult) => void;
+  setWordAssessments: (assessments: Record<string, WordSelfAssessmentStatus>) => void;
   addFocusSeconds: (seconds: number) => void;
   setFocusTargetMinutes: (minutes: number) => void;
   startFocusSession: () => void;
@@ -62,6 +64,7 @@ export const useAppStore = create<AppState>()(
       preferredSessionSize: 5,
       remindersEnabled: undefined,
       completedLessons: [],
+      wordAssessments: {},
       focusSecondsToday: 0,
       focusTargetSeconds: 25 * 60,
       focusRemainingSeconds: 25 * 60,
@@ -90,6 +93,13 @@ export const useAppStore = create<AppState>()(
       addLessonResult: (result) =>
         set((state) => ({
           completedLessons: [result, ...state.completedLessons],
+        })),
+      setWordAssessments: (assessments) =>
+        set((state) => ({
+          wordAssessments: {
+            ...state.wordAssessments,
+            ...assessments,
+          },
         })),
       addFocusSeconds: (seconds) =>
         set((state) => ({
@@ -151,6 +161,7 @@ export const useAppStore = create<AppState>()(
         preferredSessionSize: state.preferredSessionSize,
         remindersEnabled: state.remindersEnabled,
         completedLessons: state.completedLessons,
+        wordAssessments: state.wordAssessments,
         focusSecondsToday: state.focusSecondsToday,
         focusTargetSeconds: state.focusTargetSeconds,
         focusRemainingSeconds: state.focusRemainingSeconds,

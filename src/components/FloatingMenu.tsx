@@ -1,49 +1,67 @@
-import { Ellipsis, LogOut, MessageSquare, Settings, User, CircleHelp } from 'lucide-react-native';
+import { BarChart3, Clock, LogOut, MessageSquare, Settings, User, CircleHelp } from 'lucide-react-native';
 import { ReactNode } from 'react';
-import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { navigateAuth, navigateSettings } from '../navigation/rootNavigation';
+import { navigateAuth, navigateFocus, navigateProgress, navigateSettings } from '../navigation/rootNavigation';
 import { lessonRoutes, onboardingRoutes } from '../navigation/routeGroups';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../theme/ThemeProvider';
 import { theme } from '../theme/theme';
 import { RootStackParamList } from '../types/navigation';
 
-export function FloatingMenu() {
+type FloatingMenuProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+export function FloatingMenu({ open, onClose }: FloatingMenuProps) {
   const appTheme = useTheme();
-  const [open, setOpen] = useState(false);
   const currentRouteName = useAppStore((state) => state.currentRouteName) as keyof RootStackParamList | undefined;
   const setAuthenticated = useAppStore((state) => state.setAuthenticated);
 
-  if (!currentRouteName || onboardingRoutes.includes(currentRouteName) || lessonRoutes.includes(currentRouteName)) {
+  if (!open || !currentRouteName || onboardingRoutes.includes(currentRouteName) || lessonRoutes.includes(currentRouteName)) {
     return null;
   }
 
   return (
     <View style={styles.wrap} pointerEvents="box-none">
-      {open ? (
-        <View style={[styles.menu, { borderColor: appTheme.colors.border, backgroundColor: appTheme.colors.surface }]}>
-          <MenuItem label="Profile" icon={<User size={16} color={appTheme.colors.primary} />} />
-          <MenuItem label="Settings" icon={<Settings size={16} color={appTheme.colors.primary} />} onPress={navigateSettings} />
-          <MenuItem label="Help" icon={<CircleHelp size={16} color={appTheme.colors.primary} />} />
-          <MenuItem label="Feedback" icon={<MessageSquare size={16} color={appTheme.colors.primary} />} />
-          <MenuItem
-            label="Sign out"
-            icon={<LogOut size={16} color={appTheme.colors.primary} />}
-            onPress={() => {
-              setAuthenticated(false);
-              navigateAuth();
-            }}
-          />
-        </View>
-      ) : null}
-      <Pressable
-        accessibilityRole="button"
-        onPress={() => setOpen(!open)}
-        style={[styles.button, { backgroundColor: appTheme.colors.primary }]}
-      >
-        <Ellipsis size={23} color={appTheme.colors.surface} strokeWidth={2.4} />
-      </Pressable>
+      <View style={[styles.menu, { borderColor: appTheme.colors.border, backgroundColor: appTheme.colors.surface }]}>
+        <MenuItem label="Profile" icon={<User size={16} color={appTheme.colors.primary} />} onPress={onClose} />
+        <MenuItem
+          label="Settings"
+          icon={<Settings size={16} color={appTheme.colors.primary} />}
+          onPress={() => {
+            onClose();
+            navigateSettings();
+          }}
+        />
+        <MenuItem label="Help" icon={<CircleHelp size={16} color={appTheme.colors.primary} />} onPress={onClose} />
+        <MenuItem label="Feedback" icon={<MessageSquare size={16} color={appTheme.colors.primary} />} onPress={onClose} />
+        <MenuItem
+          label="Progress"
+          icon={<BarChart3 size={16} color={appTheme.colors.primary} />}
+          onPress={() => {
+            onClose();
+            navigateProgress();
+          }}
+        />
+        <MenuItem
+          label="Focus settings"
+          icon={<Clock size={16} color={appTheme.colors.primary} />}
+          onPress={() => {
+            onClose();
+            navigateFocus();
+          }}
+        />
+        <MenuItem
+          label="Sign out"
+          icon={<LogOut size={16} color={appTheme.colors.primary} />}
+          onPress={() => {
+            onClose();
+            setAuthenticated(false);
+            navigateAuth();
+          }}
+        />
+      </View>
     </View>
   );
 }
@@ -62,16 +80,9 @@ const styles = StyleSheet.create({
   wrap: {
     position: 'absolute',
     right: theme.spacing.md,
-    bottom: 92,
+    bottom: 86,
     alignItems: 'flex-end',
     gap: theme.spacing.sm,
-  },
-  button: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   menu: {
     width: 162,

@@ -31,5 +31,8 @@ export const lessonRoutes: Array<keyof RootStackParamList> = [
   'DefinitionQuiz',
   'GuidedUsage',
   'Shadowing',
+  'PracticeMode',
+  'WorkoutFinish',
+  'WorkoutSelfAssessment',
   'SessionSummary',
 ];

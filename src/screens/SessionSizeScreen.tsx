@@ -1,9 +1,9 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Zap, Dumbbell, Flame } from 'lucide-react-native';
+import { CircleDot, Dumbbell, Flame, Zap } from 'lucide-react-native';
 import { ReactNode } from 'react';
+import { Mascot } from '../components/Mascot';
 import { OptionCard } from '../components/OptionCard';
 import { Screen } from '../components/Screen';
-import { StepHeader } from '../components/StepHeader';
 import { theme } from '../theme/theme';
 import { SessionSize } from '../types/lesson';
 import { RootStackParamList } from '../types/navigation';
@@ -17,9 +17,15 @@ const options: Array<{
   icon: ReactNode;
 }> = [
   {
+    size: 1,
+    title: 'Solo workout',
+    subtitle: '1 word. One focused rep.',
+    icon: <CircleDot size={20} color={theme.colors.primary} strokeWidth={2.2} />,
+  },
+  {
     size: 3,
     title: 'Quick workout',
-    subtitle: '3 words. Fast rescue, low friction.',
+    subtitle: '3 words. Fast and light.',
     icon: <Zap size={20} color={theme.colors.primary} strokeWidth={2.2} />,
   },
   {
@@ -39,9 +45,10 @@ const options: Array<{
 export function SessionSizeScreen({ navigation }: Props) {
   return (
     <Screen>
-      <StepHeader
-        title="Choose your workout size"
-        subtitle="A session can be quick, standard, or deep. You can do one, many, or only reviews."
+      <Mascot
+        state="encourage"
+        message="Choose how many words you want in this session. Short is good. Consistent is better."
+        size={74}
       />
       {options.map((option) => (
         <OptionCard

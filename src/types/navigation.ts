@@ -1,4 +1,21 @@
-import { GeneratedLesson, LessonMode, QuizSummary, SelectedWord, SessionSize } from './lesson';
+import {
+  GeneratedLesson,
+  LessonMode,
+  QuizSummary,
+  SelectedWord,
+  SessionSize,
+  WordSelfAssessmentStatus,
+} from './lesson';
+
+export type WorkoutModule =
+  | 'read'
+  | 'check'
+  | 'use'
+  | 'speak'
+  | 'feel'
+  | 'sameDifferent'
+  | 'bestSentence'
+  | 'fastFlash';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -21,8 +38,10 @@ export type RootStackParamList = {
     sessionSize: SessionSize;
   };
   WordPreview: {
-    selectedWords: SelectedWord[];
-    sessionSize: SessionSize;
+    selectedWords?: SelectedWord[];
+    sessionSize?: SessionSize;
+    lesson?: GeneratedLesson;
+    completedModules?: WorkoutModule[];
   };
   LessonModeSelection: {
     selectedWords: SelectedWord[];
@@ -32,17 +51,21 @@ export type RootStackParamList = {
     selectedWords: SelectedWord[];
     mode: LessonMode;
     sessionSize: SessionSize;
+    startModule?: WorkoutModule;
   };
   LessonGeneration: {
     selectedWords: SelectedWord[];
     mode: LessonMode;
     sessionSize: SessionSize;
+    startModule?: WorkoutModule;
   };
   ReadingLesson: {
     lesson: GeneratedLesson;
+    completedModules?: WorkoutModule[];
   };
   ContextQuiz: {
     lesson: GeneratedLesson;
+    completedModules?: WorkoutModule[];
   };
   QuizResult: {
     lesson: GeneratedLesson;
@@ -60,17 +83,34 @@ export type RootStackParamList = {
     lesson: GeneratedLesson;
     contextSummary?: QuizSummary;
     definitionSummary?: QuizSummary;
+    completedModules?: WorkoutModule[];
   };
   Shadowing: {
     lesson: GeneratedLesson;
     contextSummary?: QuizSummary;
     definitionSummary?: QuizSummary;
+    completedModules?: WorkoutModule[];
+  };
+  PracticeMode: {
+    lesson: GeneratedLesson;
+    module: Extract<WorkoutModule, 'feel' | 'sameDifferent' | 'bestSentence' | 'fastFlash'>;
+    completedModules?: WorkoutModule[];
+  };
+  WorkoutFinish: {
+    lesson: GeneratedLesson;
+    completedModules?: WorkoutModule[];
+  };
+  WorkoutSelfAssessment: {
+    lesson: GeneratedLesson;
+    completedModules?: WorkoutModule[];
+    assessments?: Record<string, WordSelfAssessmentStatus>;
   };
   SessionSummary: {
     lesson: GeneratedLesson;
     contextSummary?: QuizSummary;
     definitionSummary?: QuizSummary;
   };
+  StreakCelebration: undefined;
   Review: undefined;
   FocusSession: undefined;
   Progress: undefined;

@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { Animated, StyleSheet, Text, View } from 'react-native';
+import { Animated, Image, StyleSheet, Text, View } from 'react-native';
+import mascotAvatar from '../../assets/mascots/ray-avatar.png';
 import { mascotAnimations } from '../constants/mascotAnimations';
 import { useTheme } from '../theme/ThemeProvider';
 import { theme } from '../theme/theme';
 import { MascotState } from '../types/mascot';
+import { MascotBubble } from './MascotBubble';
 
 type MascotProps = {
   state?: MascotState;
@@ -34,7 +36,7 @@ export function Mascot({
   const rotate = useRef(new Animated.Value(0)).current;
   const config = mascotAnimations[state];
   const colorRole = stateColorRole[state];
-  const accentColor = colorRole === 'warning' ? appTheme.colors.accent : appTheme.colors.primary;
+  const accentColor = colorRole === 'warning' ? appTheme.colors.warning : appTheme.colors.primary;
   const animationSource = config.lottieSource;
 
   const rotateStyle = useMemo(
@@ -70,7 +72,7 @@ export function Mascot({
   }, [autoplay, loop, rotate, scale, state]);
 
   return (
-    <View style={[styles.wrap, { borderColor: appTheme.colors.border, backgroundColor: appTheme.colors.surface }]}>
+    <View style={styles.wrap}>
       <Animated.View
         style={[
           styles.face,
@@ -78,7 +80,7 @@ export function Mascot({
             width: size,
             height: size,
             borderRadius: size / 2,
-            backgroundColor: appTheme.colors.primarySoft,
+            backgroundColor: getFaceBackground(state, appTheme.colors),
             transform: [{ scale }, { rotate: rotateStyle }],
           },
         ]}
@@ -87,18 +89,23 @@ export function Mascot({
           <Text style={[styles.faceText, { color: accentColor, fontSize: Math.max(12, size * 0.24) }]}>
             {config.fallbackText}
           </Text>
+        ) : mascotAvatar ? (
+          <Image source={mascotAvatar} style={styles.avatarImage} resizeMode="cover" />
         ) : (
           <FallbackMascotFace state={state} label={config.fallbackText} color={accentColor} size={size} />
         )}
       </Animated.View>
-      {message ? (
-        <View style={styles.copy}>
-          <Text style={[styles.stateLabel, { color: accentColor }]}>{config.label}</Text>
-          <Text style={[styles.message, { color: appTheme.colors.text }]}>{message}</Text>
-        </View>
-      ) : null}
+      {message ? <MascotBubble state={state} message={message} /> : null}
     </View>
   );
+}
+
+function getFaceBackground(state: MascotState, colors: ReturnType<typeof useTheme>['colors']) {
+  if (state === 'thinking') return colors.aiSoft;
+  if (state === 'oops') return colors.dangerSoft;
+  if (state === 'celebrate') return colors.warningSoft;
+  if (state === 'idle') return colors.playfulSky;
+  return colors.primarySoft;
 }
 
 function FallbackMascotFace({
@@ -129,17 +136,20 @@ function FallbackMascotFace({
 
 const styles = StyleSheet.create({
   wrap: {
-    minHeight: 92,
-    borderWidth: 1,
-    borderRadius: theme.radius.sm,
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.md,
-    padding: theme.spacing.md,
   },
   face: {
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: theme.colors.surface,
+  },
+  avatarImage: {
+    width: '122%',
+    height: '122%',
   },
   fallbackFace: {
     alignItems: 'center',
@@ -158,19 +168,5 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: '900',
     lineHeight: 10,
-  },
-  copy: {
-    flex: 1,
-    gap: 3,
-  },
-  stateLabel: {
-    fontSize: 11,
-    fontWeight: '900',
-    textTransform: 'uppercase',
-  },
-  message: {
-    fontSize: 15,
-    lineHeight: 21,
-    fontWeight: '700',
   },
 });

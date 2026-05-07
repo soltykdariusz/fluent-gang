@@ -15,17 +15,20 @@ This document captures the current product and implementation assumptions after 
 9. English may be the first fully supported MVP target vocabulary language, but the product is not conceptually English-first.
 10. The final MVP learning flow is session-based and sentence-based: one new/trained word equals one simple context sentence.
 11. Long texts, articles, and complex stories are de-emphasized for MVP runtime. Super Memory can influence hints and hooks, but the core context stays short and obvious.
-12. A session is not hardcoded as “5 words per day”. Users choose Quick 3, Standard 5, or Deep 8 words per session.
+12. A session is not hardcoded as “5 words per day”. Users choose Solo 1, Quick 3, Standard 5, or Deep 8 words per session.
 13. Definition is not a mandatory lesson stage. Definition is a rescue/help layer.
+14. The Word Workout is now a hub/gym, not a forced linear path. Users choose any visible exercise mode and return to the hub after completion.
 
 ## Current Runtime MVP
 
 - Expo React Native app with TypeScript.
 - Local onboarding and language/level selection.
 - Mock vocabulary and mock Word Workout generation.
-- Session size selection before word proposal.
+- Session size selection before word proposal, including Solo 1-word workouts.
+- Word Workout hub with all MVP exercise modes visible: Read, Check, Use, Speak, Feel, Same / Different, Best Sentence, and Fast Flash.
 - Context Exposure with one simple sentence per screen.
-- True/False Check, Mini Usage, per-word Shadowing, focus timer, and progress placeholders.
+- True/False Check, Mini Usage, Speak with Expo Speech TTS, and lightweight extra practice modes.
+- Finish Workout flow with word self-assessment: Still new, I recognize it, I can use it.
 - 2-second mock ad gate before lesson generation.
 - Bottom tab navigation with Home, Workout, Review, Progress, and Settings.
 - Initial light/dark theme foundation.
@@ -34,6 +37,7 @@ This document captures the current product and implementation assumptions after 
 
 Make the core Word Workout feel more guided and rewarding:
 
+- persist word self-assessment into local/Supabase word state
 - add small celebration animations after correct answers
 - improve mascot/guide presence during onboarding and workout
 - track response time and update word states per exercise

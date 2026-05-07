@@ -1,6 +1,7 @@
-import { BarChart3, Dumbbell, Home, RotateCcw, Settings } from 'lucide-react-native';
+import { Dumbbell, Ellipsis, Home, Pause, Play, RotateCcw } from 'lucide-react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { navigateHome, navigateProgress, navigateReview, navigateSettings, navigateWorkout } from '../navigation/rootNavigation';
+import Svg, { Circle } from 'react-native-svg';
+import { navigateHome, navigateReview, navigateWorkout } from '../navigation/rootNavigation';
 import { lessonRoutes, onboardingRoutes } from '../navigation/routeGroups';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../theme/ThemeProvider';
@@ -10,19 +11,30 @@ import { RootStackParamList } from '../types/navigation';
 const tabs: Array<{
   route: keyof RootStackParamList;
   label: string;
-  onPress: () => void;
   icon: typeof Home;
 }> = [
-  { route: 'Home', label: 'Home', onPress: navigateHome, icon: Home },
-  { route: 'VocabularySelection', label: 'Workout', onPress: navigateWorkout, icon: Dumbbell },
-  { route: 'Review', label: 'Review', onPress: navigateReview, icon: RotateCcw },
-  { route: 'Progress', label: 'Progress', onPress: navigateProgress, icon: BarChart3 },
-  { route: 'Settings', label: 'Settings', onPress: navigateSettings, icon: Settings },
+  { route: 'Home', label: 'Home', icon: Home },
+  { route: 'VocabularySelection', label: 'Workout', icon: Dumbbell },
+  { route: 'Review', label: 'Review', icon: RotateCcw },
+  { route: 'FocusSession', label: '25:00', icon: Play },
+  { route: 'Settings', label: 'More', icon: Ellipsis },
 ];
 
-export function LearningDock() {
+type LearningDockProps = {
+  moreOpen: boolean;
+  onToggleMore: () => void;
+  onCloseMore: () => void;
+};
+
+export function LearningDock({ moreOpen, onToggleMore, onCloseMore }: LearningDockProps) {
   const appTheme = useTheme();
   const currentRouteName = useAppStore((state) => state.currentRouteName) as keyof RootStackParamList | undefined;
+  const focusRemainingSeconds = useAppStore((state) => state.focusRemainingSeconds);
+  const focusTargetSeconds = useAppStore((state) => state.focusTargetSeconds);
+  const focusRunning = useAppStore((state) => state.focusRunning);
+  const startFocusSession = useAppStore((state) => state.startFocusSession);
+  const pauseFocusSession = useAppStore((state) => state.pauseFocusSession);
+  const resetFocusSession = useAppStore((state) => state.resetFocusSession);
 
   if (!currentRouteName || onboardingRoutes.includes(currentRouteName) || lessonRoutes.includes(currentRouteName)) {
     return null;
@@ -31,13 +43,65 @@ export function LearningDock() {
   return (
     <View style={[styles.wrap, { borderColor: appTheme.colors.border, backgroundColor: appTheme.colors.surface }]}>
       {tabs.map((tab) => {
-        const Icon = tab.icon;
-        const active = tab.route === currentRouteName || (tab.route === 'VocabularySelection' && currentRouteName === 'LearningGuide');
+        const isTimer = tab.route === 'FocusSession';
+        const Icon = isTimer ? (focusRunning ? Pause : Play) : tab.icon;
+        const active =
+          tab.route === 'Settings'
+            ? moreOpen || currentRouteName === 'Settings'
+            : isTimer
+              ? focusRunning || currentRouteName === 'FocusSession'
+              : tab.route === currentRouteName || (tab.route === 'VocabularySelection' && currentRouteName === 'LearningGuide');
+        const label = isTimer ? formatFocusTime(focusRemainingSeconds) : tab.label;
+        const handlePress = () => {
+          if (tab.route === 'Settings') {
+            onToggleMore();
+            return;
+          }
+          if (isTimer) {
+            onCloseMore();
+            if (focusRunning) {
+              pauseFocusSession();
+              return;
+            }
+            if (focusRemainingSeconds <= 0) {
+              resetFocusSession();
+              return;
+            }
+            startFocusSession();
+            return;
+          }
+          onCloseMore();
+          if (tab.route === 'Home') navigateHome();
+          if (tab.route === 'VocabularySelection') navigateWorkout();
+          if (tab.route === 'Review') navigateReview();
+        };
         return (
-          <Pressable key={tab.label} accessibilityRole="button" onPress={tab.onPress} style={styles.tab}>
-            <Icon size={21} color={active ? appTheme.colors.primary : appTheme.colors.muted} strokeWidth={2.2} />
+          <Pressable key={tab.label} accessibilityRole="button" onPress={handlePress} style={styles.tab}>
+            {isTimer ? (
+              <View style={styles.timerIcon}>
+                <Svg width={34} height={34} viewBox="0 0 34 34" style={styles.timerRing}>
+                  <Circle cx="17" cy="17" r="14" stroke={appTheme.colors.border} strokeWidth="3" fill="none" />
+                  <Circle
+                    cx="17"
+                    cy="17"
+                    r="14"
+                    stroke={active ? appTheme.colors.primary : appTheme.colors.muted}
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 14}`}
+                    strokeDashoffset={`${2 * Math.PI * 14 * (1 - getTimerProgress(focusRemainingSeconds, focusTargetSeconds))}`}
+                    rotation="-90"
+                    origin="17, 17"
+                  />
+                </Svg>
+                <Icon size={15} color={active ? appTheme.colors.primary : appTheme.colors.muted} strokeWidth={2.4} />
+              </View>
+            ) : (
+              <Icon size={21} color={active ? appTheme.colors.primary : appTheme.colors.muted} strokeWidth={2.2} />
+            )}
             <Text style={[styles.label, { color: active ? appTheme.colors.primary : appTheme.colors.muted }]}>
-              {tab.label}
+              {label}
             </Text>
           </Pressable>
         );
@@ -71,4 +135,26 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '800',
   },
+  timerIcon: {
+    width: 34,
+    height: 34,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  timerRing: {
+    position: 'absolute',
+  },
 });
+
+function formatFocusTime(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
+function getTimerProgress(remainingSeconds: number, targetSeconds: number) {
+  if (targetSeconds <= 0) {
+    return 0;
+  }
+  return Math.max(0, Math.min(1, remainingSeconds / targetSeconds));
+}

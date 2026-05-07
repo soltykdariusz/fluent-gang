@@ -6,14 +6,13 @@ import { AppButton } from '../components/AppButton';
 import { HighlightedText } from '../components/HighlightedText';
 import { QuizProgress } from '../components/QuizProgress';
 import { Screen } from '../components/Screen';
-import { StepHeader } from '../components/StepHeader';
 import { theme } from '../theme/theme';
 import { RootStackParamList } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ReadingLesson'>;
 
 export function ReadingLessonScreen({ navigation, route }: Props) {
-  const { lesson } = route.params;
+  const { lesson, completedModules = [] } = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [hintVisible, setHintVisible] = useState(false);
   const sentence = lesson.contextSentences[currentIndex];
@@ -25,12 +24,15 @@ export function ReadingLessonScreen({ navigation, route }: Props) {
       setCurrentIndex((value) => value + 1);
       return;
     }
-    navigation.navigate('ContextQuiz', { lesson });
+    navigation.replace('WordPreview', {
+      lesson,
+      completedModules: Array.from(new Set([...completedModules, 'read'])),
+    });
   };
 
   return (
     <Screen>
-      <StepHeader title="Context Exposure" subtitle="One word, one simple sentence. Focus only on the green word." />
+      <Text style={styles.instruction}>Read this sentence.</Text>
       <QuizProgress current={currentIndex + 1} total={lesson.contextSentences.length} />
       <View style={styles.panel}>
         <Text style={styles.count}>Word {currentIndex + 1}/{lesson.contextSentences.length}</Text>
@@ -63,6 +65,12 @@ export function ReadingLessonScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
+  instruction: {
+    color: theme.colors.text,
+    fontSize: 20,
+    lineHeight: 27,
+    fontWeight: '900',
+  },
   panel: {
     gap: theme.spacing.md,
     borderRadius: theme.radius.sm,

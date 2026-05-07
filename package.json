@@ -16,6 +16,7 @@
     "@supabase/supabase-js": "^2.105.1",
     "expo": "~54.0.33",
     "expo-av": "^16.0.8",
+    "expo-speech": "~14.0.8",
     "expo-status-bar": "~3.0.9",
     "i18next": "^26.0.8",
     "lucide-react-native": "^1.14.0",

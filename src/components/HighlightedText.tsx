@@ -1,10 +1,10 @@
-import { Text, TextStyle } from 'react-native';
+import { StyleProp, Text, TextStyle } from 'react-native';
 
 type HighlightedTextProps = {
   text: string;
   terms: string[];
-  style?: TextStyle;
-  highlightStyle?: TextStyle;
+  style?: StyleProp<TextStyle>;
+  highlightStyle?: StyleProp<TextStyle>;
 };
 
 function escapeRegExp(value: string) {

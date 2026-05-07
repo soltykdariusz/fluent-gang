@@ -1,19 +1,18 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { CheckCircle2, ChevronLeft, ChevronRight, Mic2 } from 'lucide-react-native';
+import { ChevronRight, Mic2 } from 'lucide-react-native';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { QuizNavButton } from '../components/QuizNavButton';
+import { AppButton } from '../components/AppButton';
 import { QuizProgress } from '../components/QuizProgress';
 import { Mascot } from '../components/Mascot';
 import { Screen } from '../components/Screen';
-import { StepHeader } from '../components/StepHeader';
 import { theme } from '../theme/theme';
 import { RootStackParamList } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'GuidedUsage'>;
 
 export function GuidedUsageScreen({ navigation, route }: Props) {
-  const { lesson, contextSummary, definitionSummary } = route.params;
+  const { lesson, completedModules = [] } = route.params;
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
   const exercise = lesson.miniUsageExercises[currentIndex];
@@ -21,27 +20,32 @@ export function GuidedUsageScreen({ navigation, route }: Props) {
   const answeredCurrent = selectedOptionId !== undefined;
   const correctCurrent = selectedOptionId === exercise.correctOptionId;
   const isLastExercise = currentIndex === lesson.miniUsageExercises.length - 1;
+  const selectedOptionText = exercise.options.find((option) => option.id === selectedOptionId)?.text;
+  const displayedPrompt =
+    exercise.type === 'insert_word' && selectedOptionText
+      ? exercise.prompt.replace('______', selectedOptionText)
+      : exercise.prompt;
 
   const goNext = () => {
     if (!isLastExercise) {
       setCurrentIndex((value) => value + 1);
       return;
     }
-    navigation.navigate('Shadowing', { lesson, contextSummary, definitionSummary });
+    navigation.replace('WordPreview', {
+      lesson,
+      completedModules: Array.from(new Set([...completedModules, 'use'])),
+    });
   };
 
   return (
     <Screen>
-      <StepHeader
-        title="Mini Usage"
-        subtitle="Tap one answer. This should feel easy: recognition first, activation next."
-      />
+      <Text style={styles.instruction}>Try.</Text>
       <QuizProgress current={currentIndex + 1} total={lesson.miniUsageExercises.length} />
       <View style={styles.card}>
         <Text style={styles.typeLabel}>
           {exercise.type === 'insert_word' ? 'Insert Word Exercise' : 'Correct Usage Exercise'}
         </Text>
-        <Text style={styles.prompt}>{exercise.prompt}</Text>
+        <Text style={styles.prompt}>{displayedPrompt}</Text>
         <View style={styles.options}>
           {exercise.options.map((option) => {
             const selected = selectedOptionId === option.id;
@@ -65,46 +69,45 @@ export function GuidedUsageScreen({ navigation, route }: Props) {
           })}
         </View>
         {answeredCurrent ? (
-          <View style={styles.feedbackBox}>
+          <View style={[styles.feedbackBox, { backgroundColor: correctCurrent ? theme.colors.playfulMint : theme.colors.playfulCoral }]}>
             <Mascot
               state={correctCurrent ? 'happy' : 'oops'}
-              message={correctCurrent ? 'That pattern is getting easier.' : 'Almost. Tiny correction, then keep going.'}
+              message={correctCurrent ? 'That pattern is getting easier.' : 'Tiny correction. Keep going.'}
               size={42}
               loop={false}
             />
-            <CheckCircle2 size={18} color={theme.colors.primary} strokeWidth={2.2} />
             <Text style={styles.feedback}>
               {correctCurrent ? exercise.feedbackCorrect : exercise.feedbackIncorrect}
             </Text>
           </View>
         ) : null}
       </View>
-      <View style={styles.navRow}>
-        <QuizNavButton
-          title="Back"
-          onPress={() => setCurrentIndex((value) => Math.max(0, value - 1))}
-          disabled={currentIndex === 0}
-          icon={<ChevronLeft size={17} color={theme.colors.primary} strokeWidth={2.4} />}
-        />
-        <QuizNavButton
-          title={isLastExercise ? 'Shadowing' : 'Next'}
-          onPress={goNext}
-          disabled={!answeredCurrent}
-          variant="solid"
-          icon={
-            isLastExercise ? (
-              <Mic2 size={18} color={theme.colors.surface} strokeWidth={2.2} />
-            ) : (
-              <ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />
-            )
-          }
-        />
-      </View>
+      {answeredCurrent ? (
+        <View style={styles.continueWrap}>
+          <AppButton
+            title={isLastExercise ? 'Continue' : 'Next'}
+            onPress={goNext}
+            icon={
+              isLastExercise ? (
+                <Mic2 size={18} color={theme.colors.surface} strokeWidth={2.2} />
+              ) : (
+                <ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />
+              )
+            }
+          />
+        </View>
+      ) : null}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  instruction: {
+    color: theme.colors.text,
+    fontSize: 20,
+    lineHeight: 27,
+    fontWeight: '900',
+  },
   card: {
     gap: theme.spacing.md,
     borderRadius: theme.radius.sm,
@@ -160,11 +163,8 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   feedbackBox: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
     gap: theme.spacing.sm,
-    borderRadius: theme.radius.sm,
-    backgroundColor: theme.colors.primarySoft,
+    borderRadius: 18,
     padding: theme.spacing.sm,
   },
   feedback: {
@@ -174,11 +174,8 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontWeight: '700',
   },
-  navRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: theme.spacing.sm,
+  continueWrap: {
+    marginTop: 'auto',
+    paddingTop: theme.spacing.md,
   },
 });
