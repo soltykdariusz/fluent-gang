@@ -23,7 +23,7 @@ The style can include:
 
 - Chameleon: main guide, adaptation, context, vocabulary growth
 - Tiger: focus, strength, discipline
-- Parrot: speaking, shadowing, repetition
+- Parrot: Speak, audio, repetition
 - Panda: calm review, consistency
 - Fox: clever memory hooks and flexible thinking
 

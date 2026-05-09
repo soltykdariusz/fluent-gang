@@ -16,11 +16,14 @@ Fluent Gang is a mobile-first Expo app with a small but scalable foundation.
 ## MVP Flow
 
 1. Choose interface language, native language, target language, and level.
-2. Accept or edit 5 vocabulary words.
-3. Choose lesson mode.
-4. Generate a mock AI lesson.
-5. Read/listen, answer context quiz, study definitions, answer definition quiz, shadow, save progress.
-6. Track focus time and prepare spaced repetition reviews.
+2. Choose session size: Solo 1, Quick 3, Standard 5, or Deep 8.
+3. Accept or edit proposed vocabulary words.
+4. Choose lesson mode.
+5. Generate a mock AI lesson.
+6. Enter Word Gym and choose a practice machine.
+7. Complete short module rounds such as Context, Check, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, or Fast Flash.
+8. Return to Word Gym, choose another machine, or finish the workout.
+9. Track focus time and prepare spaced repetition reviews.
 
 ## Integration Notes
 

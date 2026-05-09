@@ -71,7 +71,7 @@ The MVP should implement a small useful version:
 - true/false context check
 - optional definitions and memory hooks as rescue tools
 - mini usage without typing
-- shadowing
+- Speak with short character dialogue and audio replay
 - simple spaced repetition scheduling
 - basic user word state updates
 

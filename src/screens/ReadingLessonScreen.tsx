@@ -26,7 +26,7 @@ export function ReadingLessonScreen({ navigation, route }: Props) {
     }
     navigation.replace('WordPreview', {
       lesson,
-      completedModules: Array.from(new Set([...completedModules, 'read'])),
+      completedModules: Array.from(new Set([...completedModules, 'context'])),
     });
   };
 

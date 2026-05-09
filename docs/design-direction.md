@@ -42,12 +42,24 @@ Future implementation note: add a single icon system, likely `lucide-react-nativ
 ## UI Principles
 
 - Mobile-first always.
-- The bottom focus/progress area should feel like part of the app shell, not a floating widget.
+- The focus control should feel like part of the app shell. It can live in the top bar, but it must stay quiet and secondary to the learning task.
 - Timers and tracking should be visible but quiet enough not to distract from learning.
-- New vocabulary in lesson text should be visually emphasized.
+- The Word Gym should feel like a clean room of practice machines: each round icon opens a short module with quick reps, not a forced linear lesson path.
+- Avoid a strong main-vs-optional split. All machines are available choices; completion can be shown gently without pressuring the user.
+- Target vocabulary should not be heavily highlighted in dialogue bubbles. The current direction favors calm text, natural context, and audio over bold/color emphasis.
 - Lesson content should have enough breathing room to feel readable and premium.
 - Avoid clutter, heavy shadows, oversized cards, and noisy gamification.
 - Animations should be subtle, silent, and meaningful. Celebration should communicate strength and success without interrupting focus.
+
+## Word Gym UI Direction
+
+- No heavy Word Gym header. Let the character, instruction bubble, and machine grid establish the screen.
+- Use a neutral character bubble to guide the user.
+- Machines should feel round, simple, and scannable, with three icons per row on normal mobile widths.
+- Spacing should be generous, but the screen should still feel like a usable control surface rather than a landing page.
+- Typography should be light and calm. Avoid strong bolding except where hierarchy truly needs it.
+- Dialogue bubbles should be neutral: light or gray surfaces, subtle borders, no colorful teaching background.
+- Speak should feel like a natural conversation between two characters. Previous bubbles remain visible as the conversation builds.
 
 ## Visual Direction
 

@@ -8,14 +8,17 @@ import {
 } from './lesson';
 
 export type WorkoutModule =
-  | 'read'
+  | 'context'
   | 'check'
   | 'use'
   | 'speak'
+  | 'argue'
+  | 'ask'
+  | 'super_memo'
   | 'feel'
-  | 'sameDifferent'
-  | 'bestSentence'
-  | 'fastFlash';
+  | 'same_different'
+  | 'best_sentence'
+  | 'fast_flash';
 
 export type RootStackParamList = {
   Splash: undefined;
@@ -93,7 +96,12 @@ export type RootStackParamList = {
   };
   PracticeMode: {
     lesson: GeneratedLesson;
-    module: Extract<WorkoutModule, 'feel' | 'sameDifferent' | 'bestSentence' | 'fastFlash'>;
+    module: Extract<WorkoutModule, 'feel' | 'same_different' | 'best_sentence' | 'fast_flash'>;
+    completedModules?: WorkoutModule[];
+  };
+  ModuleRunner: {
+    lesson: GeneratedLesson;
+    module: WorkoutModule;
     completedModules?: WorkoutModule[];
   };
   WorkoutFinish: {

@@ -25,7 +25,7 @@ export function VocabularySelectionScreen({ navigation, route }: Props) {
         language: targetLanguage,
         level,
         interests: selectedInterests,
-        limit: Math.max(sessionSize + 3, 8),
+        limit: sessionSize === 1 ? 1 : Math.max(sessionSize + 3, 8),
       }),
     [level, selectedInterests, sessionSize, targetLanguage],
   );

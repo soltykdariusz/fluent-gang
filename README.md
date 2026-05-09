@@ -16,11 +16,11 @@ Mobile-first MVP foundation for a contextual vocabulary growth engine.
 - Contextual vocabulary acquisition direction with memory stages and word state modeling
 - Vocabulary selection with proposed words and custom-word entry
 - Lesson mode selection: Standard Context, Funny Story, Dialogue, Super Memory
-- Mock Word Workout generation with an OpenAI-ready prompt builder
+- Mock Word Gym session generation with an OpenAI-ready prompt builder
 - Session size selection: Solo 1, Quick 3, Standard 5, Deep 8 words
-- Word Workout hub with Read, Check, Use, Speak, Feel, Same / Different, Best Sentence, and Fast Flash
-- Context Exposure with one simple sentence per target word
-- True/False Check, Mini Usage, Speak with simple TTS, and lightweight extra practice modes
+- Word Gym hub with Context, Check, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, and Fast Flash
+- Module runner for short contextual vocabulary practice machines
+- Context Exposure, True/False Check, Mini Usage, natural Speak dialogues, character-led dialogue modules, and quick recognition modes
 - Finish Workout flow with word self-assessment
 - Local progress and focus session tracking with Zustand + AsyncStorage
 - Supabase client setup and initial SQL schema
@@ -83,13 +83,15 @@ docs/
 
 Fluent Gang should feel premium, calm, and carefully made. The green brand direction should suggest correctness, progress, and focus. UI should use consistent SVG icons wherever they improve clarity, with a refined product character rather than loud gamification.
 
+The workout experience is a Word Gym: one tile opens one mini-module with several quick rounds. It should feel like a clean room of practice machines, not a forced lesson path. The user chooses the exercise they want, and the app avoids a hard split between main workout and optional practice.
+
 The shared color palette lives in `src/theme/palette.ts`. App components should use theme tokens from `src/theme/theme.ts` instead of hardcoded colors.
 
 See `docs/design-direction.md` for the design principles and quality bar.
 
 ## Character Direction
 
-Fluent Gang should eventually include a small cast of premium, funny, memorable characters. They should make the app warmer and less technical while supporting learning moments, celebrations, Super Memory, shadowing, and game mode.
+Fluent Gang should eventually include a small cast of premium, funny, memorable characters. They should make the app warmer and less technical while supporting learning moments, celebrations, Super Memo, Speak, and game mode.
 
 See `docs/characters.md` for the character system concept.
 
@@ -117,7 +119,7 @@ Planned product tiers:
 - Paid plan: ad-free learning with a smoother premium experience and future advanced features.
 - Company plan: team/company access for businesses that want language learning for employees, with future admin, reporting, and group progress features.
 
-MVP implementation note: billing, real ads, and company accounts are not implemented yet. The app currently uses a 2-second mock ad gate before lesson generation so the flow can be tested quickly.
+MVP implementation note: billing, real ads, and company accounts are not implemented yet. The app currently uses a 0.5-second mock ad gate before lesson generation so the flow can be tested quickly.
 
 ## Supabase
 
@@ -137,13 +139,15 @@ The schema supports:
 
 ## OpenAI Integration Plan
 
-Current Word Workout generation is mocked in `src/services/openaiLessonService.ts`.
+Current Word Gym session generation is mocked in `src/services/openaiLessonService.ts`.
 
 Important MVP rule:
 
 **One word = one simple sentence.**
 
-The app should not generate long articles or complex stories as the default MVP learning experience. For each selected word, the generator should create one very simple context sentence, one true/false check, one mini usage exercise, and one Speak set with 3-5 simple sentences.
+The app should not generate long articles or complex stories as the default MVP learning experience. For each selected word, the generator should create short contextual material for the Word Gym modules: simple context moments, true/false checks, mini usage choices, and natural character dialogue where it helps the word land.
+
+Speak is a natural two-character dialogue, not a technical list of example sentences. Not every line has to contain the target word. The target word should stay visually calm inside bubbles; the screen should rely on context, voice, and character flow rather than heavy highlighting.
 
 Definitions are optional support, not the core lesson stage:
 

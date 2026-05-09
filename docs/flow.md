@@ -46,29 +46,29 @@ Standard can be the default, but Solo must always be possible.
 
 The workout is a gym, not a forced linear lesson path.
 
-## Word Workout Hub
+## Word Gym Hub
 
-All exercise modes are visible.
+All exercise modes are visible as practice machines. The user chooses the machine they want to use, completes short rounds, then returns to the gym.
 
-Main workout:
+Current machines:
 
-- Read
+- Context
 - Check
 - Use
 - Speak
-
-Extra practice:
-
+- Argue
+- Ask
+- Super Memo
 - Feel
 - Same / Different
 - Best Sentence
 - Fast Flash
 
-Completed modes can show a small checkmark, but the user can repeat them.
+Completed modes can show a small checkmark, but the user can repeat them. The UI should avoid a strong "main workout" versus "extra practice" hierarchy.
 
 ## Exercise Modes
 
-### Read
+### Context
 
 Simple exposure to the word in context.
 
@@ -106,9 +106,25 @@ B) reluctant go
 
 ### Speak
 
-Former Shadowing, now named Speak in the UI.
+Speak is a natural conversation between two characters.
 
-The user repeats 3-5 simple sentences aloud for each word.
+The dialogue appears line by line. Previous bubbles stay on screen. Each new line is read aloud automatically, and the user can tap a neutral speaker icon to replay it.
+
+Not every line has to contain the target word. The goal is a simple, believable conversation where the word becomes understandable through context.
+
+### Argue
+
+Two characters disagree or correct each other about the situation. The user answers a simple meaning question after the short exchange.
+
+### Ask
+
+The word appears inside short, natural questions and answers. The module should feel like a person asking about real situations, not a grammar drill.
+
+### Super Memo
+
+Not final yet.
+
+The intended direction is a short memorable story or dialogue followed by one simple content question, for example True/False. It should help recall without becoming a long reading task.
 
 ### Feel
 

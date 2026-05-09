@@ -18,6 +18,7 @@ import { LearningGuideScreen } from '../screens/LearningGuideScreen';
 import { LessonGenerationScreen } from '../screens/LessonGenerationScreen';
 import { LessonModeSelectionScreen } from '../screens/LessonModeSelectionScreen';
 import { LevelSelectionScreen } from '../screens/LevelSelectionScreen';
+import { ModuleRunnerScreen } from '../screens/ModuleRunnerScreen';
 import { NativeLanguageScreen } from '../screens/NativeLanguageScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
 import { ProgressScreen } from '../screens/ProgressScreen';
@@ -91,6 +92,7 @@ export function AppNavigator() {
         <Stack.Screen name="GuidedUsage" component={GuidedUsageScreen} />
         <Stack.Screen name="Shadowing" component={ShadowingScreen} />
         <Stack.Screen name="PracticeMode" component={PracticeModeScreen} />
+        <Stack.Screen name="ModuleRunner" component={ModuleRunnerScreen} />
         <Stack.Screen name="WorkoutFinish" component={WorkoutFinishScreen} />
         <Stack.Screen name="WorkoutSelfAssessment" component={WorkoutSelfAssessmentScreen} />
         <Stack.Screen name="SessionSummary" component={SessionSummaryScreen} />

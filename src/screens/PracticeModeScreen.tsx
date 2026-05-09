@@ -80,10 +80,10 @@ export function PracticeModeScreen({ navigation, route }: Props) {
 
       {answeredCurrent ? (
         <AppButton
-          title={isLastExercise ? 'Done' : module === 'fastFlash' ? 'Next flash' : 'Continue'}
+          title={isLastExercise ? 'Done' : module === 'fast_flash' ? 'Next flash' : 'Continue'}
           onPress={goNext}
           icon={
-            module === 'fastFlash' && !isLastExercise ? (
+            module === 'fast_flash' && !isLastExercise ? (
               <RotateCcw size={17} color={theme.colors.surface} strokeWidth={2.2} />
             ) : (
               <ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />

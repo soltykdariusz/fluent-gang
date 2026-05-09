@@ -17,7 +17,7 @@ export type PracticeExercise = {
 
 export function getPracticeExercises(
   lesson: GeneratedLesson,
-  module: Extract<WorkoutModule, 'feel' | 'sameDifferent' | 'bestSentence' | 'fastFlash'>,
+  module: Extract<WorkoutModule, 'feel' | 'same_different' | 'best_sentence' | 'fast_flash'>,
 ): PracticeExercise[] {
   return lesson.words.map((word, index) => {
     const context = lesson.contextSentences.find((item) => item.wordId === word.id) ?? lesson.contextSentences[index];
@@ -28,11 +28,11 @@ export function getPracticeExercises(
       return createFeelExercise(word.id, targetWord, sentence);
     }
 
-    if (module === 'sameDifferent') {
+    if (module === 'same_different') {
       return createSameDifferentExercise(word.id, targetWord, sentence, index);
     }
 
-    if (module === 'bestSentence') {
+    if (module === 'best_sentence') {
       return createBestSentenceExercise(word.id, targetWord, sentence);
     }
 
@@ -49,10 +49,10 @@ export function getPracticeExercises(
   });
 }
 
-export function getPracticeTitle(module: Extract<WorkoutModule, 'feel' | 'sameDifferent' | 'bestSentence' | 'fastFlash'>) {
+export function getPracticeTitle(module: Extract<WorkoutModule, 'feel' | 'same_different' | 'best_sentence' | 'fast_flash'>) {
   if (module === 'feel') return 'Feel';
-  if (module === 'sameDifferent') return 'Same / Different';
-  if (module === 'bestSentence') return 'Best Sentence';
+  if (module === 'same_different') return 'Same / Different';
+  if (module === 'best_sentence') return 'Best Sentence';
   return 'Fast Flash';
 }
 

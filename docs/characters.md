@@ -19,8 +19,8 @@ They should appear where they add motivation, clarity, or delight:
 
 - after a correct answer
 - after finishing a word
-- during Super Memory mode
-- during shadowing
+- during Super Memo moments
+- during Speak
 - inside focus milestones
 - inside game mode
 - on empty states and progress screens
@@ -71,7 +71,7 @@ Personality:
 Example voice:
 
 - "Small steps. Strong memory."
-- "Read the scene first. The word will land."
+- "Meet the scene first. The word will land."
 - "You are building fluency, not chasing it."
 
 ### The Hype Friend
@@ -100,11 +100,11 @@ Example voice:
 
 ### The Memory Freak
 
-Role: Super Memory storyteller.
+Role: Super Memo storyteller.
 
 Appears in:
 
-- Super Memory mode
+- Super Memo mode
 - absurd story generation
 - memory tips
 
@@ -127,7 +127,7 @@ Role: speaking and rhythm coach.
 
 Appears in:
 
-- shadowing
+- Speak
 - listening
 - future pronunciation feedback
 
@@ -201,7 +201,7 @@ Avoid:
 - constant idle motion
 - large bouncing effects
 - excessive confetti
-- interrupting reading
+- interrupting module content
 - animation after every tiny tap
 
 ## Product Integration
@@ -212,9 +212,9 @@ Use characters lightly:
 
 - Mentor introduces a learning stage.
 - Hype Friend reacts after a quiz step.
-- Shadow Coach appears in shadowing.
+- Shadow Coach appears in Speak.
 
-### Super Memory
+### Super Memo
 
 Use characters more strongly:
 

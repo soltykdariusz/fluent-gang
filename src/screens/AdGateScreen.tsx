@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Crown, Sparkles } from 'lucide-react-native';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { AppButton } from '../components/AppButton';
 import { Screen } from '../components/Screen';
@@ -10,23 +10,16 @@ import { RootStackParamList } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AdGate'>;
 
-const DEV_AD_SECONDS = 2;
+const DEV_AD_MS = 500;
 
 export function AdGateScreen({ navigation, route }: Props) {
-  const [remainingSeconds, setRemainingSeconds] = useState(DEV_AD_SECONDS);
-
   useEffect(() => {
-    if (remainingSeconds <= 0) {
-      navigation.replace('LessonGeneration', route.params);
-      return undefined;
-    }
-
     const timeout = setTimeout(() => {
-      setRemainingSeconds((value) => value - 1);
-    }, 1000);
+      navigation.replace('LessonGeneration', route.params);
+    }, DEV_AD_MS);
 
     return () => clearTimeout(timeout);
-  }, [navigation, remainingSeconds, route.params]);
+  }, [navigation, route.params]);
 
   return (
     <Screen scroll={false}>
@@ -38,7 +31,7 @@ export function AdGateScreen({ navigation, route }: Props) {
           title="Sponsor moment"
           subtitle="Free plan placeholder. In production this becomes a 15-second ad before generated lessons."
         />
-        <Text style={styles.counter}>{remainingSeconds}s</Text>
+        <Text style={styles.counter}>0.5s</Text>
         <AppButton
           title="Premium skips this"
           onPress={() => navigation.replace('LessonGeneration', route.params)}
