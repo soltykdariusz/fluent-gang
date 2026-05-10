@@ -9,7 +9,7 @@ import {
 
 export type WorkoutModule =
   | 'context'
-  | 'check'
+  | 'the_news'
   | 'use'
   | 'speak'
   | 'argue'

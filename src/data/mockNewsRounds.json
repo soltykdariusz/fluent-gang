@@ -1,0 +1,91 @@
+{
+  "reluctant": [
+    {
+      "id": "reluctant-news-1",
+      "headline": "Man reluctant to enter the building",
+      "story": [
+        "Tom arrived at the office just before the meeting.",
+        "He stopped near the glass door and looked inside.",
+        "His team waved, but he kept stepping back.",
+        "Tom was reluctant to enter the room.",
+        "A friend said Tom is often reluctant when many people are watching."
+      ],
+      "question": "Why did Tom wait?",
+      "answers": [
+        {
+          "id": "not-want",
+          "text": "He did not really want to enter"
+        },
+        {
+          "id": "excited",
+          "text": "He was very excited"
+        },
+        {
+          "id": "forgot",
+          "text": "He forgot the address"
+        }
+      ],
+      "correctAnswerId": "not-want",
+      "feedbackCorrect": "Correct. Reluctant means he did not really want to do it.",
+      "feedbackIncorrect": "Almost. Reluctant means he did not really want to do it."
+    },
+    {
+      "id": "reluctant-news-2",
+      "headline": "Student reluctant to answer",
+      "story": [
+        "Sara looked at the question on the board.",
+        "She knew part of the answer and held her pen tightly.",
+        "The room became quiet while everyone waited.",
+        "Sara was reluctant to answer in front of the class.",
+        "Her teacher smiled because Sara still looked reluctant, not confused."
+      ],
+      "question": "How did Sara feel?",
+      "answers": [
+        {
+          "id": "unsure",
+          "text": "Unsure and not ready to answer"
+        },
+        {
+          "id": "shout",
+          "text": "Very excited to shout"
+        },
+        {
+          "id": "angry",
+          "text": "Angry at everyone"
+        }
+      ],
+      "correctAnswerId": "unsure",
+      "feedbackCorrect": "Correct. She was not eager to answer.",
+      "feedbackIncorrect": "Almost. She was not eager to answer."
+    },
+    {
+      "id": "reluctant-news-3",
+      "headline": "Player reluctant to join the match",
+      "story": [
+        "Mike stood beside the field after the break.",
+        "His team needed one more player and called his name.",
+        "He looked at his sore leg and did not move.",
+        "Mike was reluctant to join the match.",
+        "Even when the coach waved, Mike still seemed reluctant to play."
+      ],
+      "question": "What does reluctant mean here?",
+      "answers": [
+        {
+          "id": "not-join",
+          "text": "He did not really want to join"
+        },
+        {
+          "id": "immediate",
+          "text": "He wanted to play immediately"
+        },
+        {
+          "id": "playing",
+          "text": "He was already playing"
+        }
+      ],
+      "correctAnswerId": "not-join",
+      "feedbackCorrect": "Correct. Reluctant means not really wanting to do something.",
+      "feedbackIncorrect": "Almost. Reluctant means not really wanting to do something."
+    }
+  ]
+}

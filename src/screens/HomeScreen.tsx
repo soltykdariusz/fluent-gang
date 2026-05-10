@@ -4,14 +4,17 @@ import { StyleSheet, View } from 'react-native';
 import { AppButton } from '../components/AppButton';
 import { Mascot } from '../components/Mascot';
 import { Screen } from '../components/Screen';
+import mockWorkoutWords from '../data/mockWorkoutWords.json';
 import { useAppStore } from '../store/useAppStore';
 import { theme } from '../theme/theme';
+import { SelectedWord } from '../types/lesson';
 import { RootStackParamList } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export function HomeScreen({ navigation }: Props) {
   const { focusRunning } = useAppStore();
+  const workoutWord = mockWorkoutWords[0] as SelectedWord;
 
   return (
     <Screen>
@@ -24,7 +27,7 @@ export function HomeScreen({ navigation }: Props) {
       </View>
       <AppButton
         title="Start workout"
-        onPress={() => navigation.navigate('SessionSize')}
+        onPress={() => navigation.navigate('WordPreview', { selectedWords: [workoutWord], sessionSize: 1 })}
         icon={<BookOpenText size={19} color={theme.colors.surface} strokeWidth={2.2} />}
       />
       <AppButton

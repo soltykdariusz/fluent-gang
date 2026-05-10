@@ -42,12 +42,17 @@ Future implementation note: add a single icon system, likely `lucide-react-nativ
 ## UI Principles
 
 - Mobile-first always.
+- Light-mode app background should be white. Individual scene surfaces can use subtle contextual tints, but the main screen should stay clean and white.
 - The focus control should feel like part of the app shell. It can live in the top bar, but it must stay quiet and secondary to the learning task.
 - Timers and tracking should be visible but quiet enough not to distract from learning.
 - The Word Gym should feel like a clean room of practice machines: each round icon opens a short module with quick reps, not a forced linear lesson path.
 - Avoid a strong main-vs-optional split. All machines are available choices; completion can be shown gently without pressuring the user.
 - Target vocabulary should not be heavily highlighted in dialogue bubbles. The current direction favors calm text, natural context, and audio over bold/color emphasis.
 - Lesson content should have enough breathing room to feel readable and premium.
+- The active learning content should stay visually centered. When a new dialogue line, question, or answer block appears near the lower half of the viewport, the screen should auto-scroll gently so the new content becomes the focus while the progress bar remains visible.
+- Primary navigation actions such as `Next`, `Back to gym`, and paired end-of-module actions should stay fixed at the same bottom height. If two actions appear, they should use the same fixed bottom action area rather than appearing inside the scroll content.
+- Exercise screens should share common chrome: a top progress bar with close X, shared audio-title rows, shared success panels, and shared calm answer-choice patterns. Prefer one component with multiple consumers over repeated one-off UI.
+- Closing an exercise must stop any active speech/audio before navigation.
 - Avoid clutter, heavy shadows, oversized cards, and noisy gamification.
 - Animations should be subtle, silent, and meaningful. Celebration should communicate strength and success without interrupting focus.
 
@@ -60,6 +65,12 @@ Future implementation note: add a single icon system, likely `lucide-react-nativ
 - Typography should be light and calm. Avoid strong bolding except where hierarchy truly needs it.
 - Dialogue bubbles should be neutral: light or gray surfaces, subtle borders, no colorful teaching background.
 - Speak should feel like a natural conversation between two characters. Previous bubbles remain visible as the conversation builds.
+- Context is the first screen direction that feels approved: white page, quiet top progress, compact scene illustration, title with replay audio, line-by-line dialogue, then question and choices.
+- Context and The News share the same centered audio-title pattern: the row is centered, while the type reveal starts from the left. Text should use a softer dark ink than pure black.
+- Context scene illustrations should be compact. The tinted scene rectangle should be smaller than the characters, allowing the characters to slightly break outside the rounded scene boundary.
+- Context scene tints should fit the place: for example doctor can be warm cream, mechanic can be pale blue, kitchen can be soft yellow.
+- Context progress is per scene micro-step, not per module count: title, each dialogue line, then question.
+- Content length should scale by learner level. Higher levels can receive longer scenes/news and more detail; lower levels should stay shorter and simpler.
 
 ## Visual Direction
 
@@ -69,6 +80,10 @@ Future implementation note: add a single icon system, likely `lucide-react-nativ
 - Rounded corners should be modest.
 - Borders and separators are preferred over heavy card shadows.
 - Progress circles, levels, and streak-like elements should feel precise rather than arcade-like.
+
+## Word Lookup
+
+Long term, word taps should open Fluent Gang's own word sheet/library first: simple meaning, native-language support where needed, examples, audio, and the user's history with that word. Linking to Google Translate can be useful as an external fallback, but it should not be the primary learning experience because Fluent Gang needs consistent context, examples, and product tone.
 
 ## Product Quality Bar
 

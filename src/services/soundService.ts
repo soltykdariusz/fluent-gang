@@ -27,12 +27,17 @@ export async function playWordAudio(item: WordAudioItem) {
   }
 }
 
-export async function playSentenceAudio(sentence: string, _targetWord: string) {
+export async function playSentenceAudio(sentence: string, _targetWord: string, onDone?: () => void) {
   try {
-    await speak(sentence);
+    await speak(sentence, onDone);
   } catch {
+    onDone?.();
     // Sentence audio should never block the workout flow.
   }
+}
+
+export function stopSentenceAudio() {
+  Speech.stop();
 }
 
 export function getWordAudioItems(lesson: GeneratedLesson): WordAudioItem[] {
@@ -64,9 +69,10 @@ async function playSound(asset: number, volume: number) {
   }
 }
 
-async function speak(text: string) {
+async function speak(text: string, onDone?: () => void) {
   const value = text.trim();
   if (!value) {
+    onDone?.();
     return;
   }
 
@@ -75,5 +81,8 @@ async function speak(text: string) {
     language: 'en-US',
     pitch: 1,
     rate: 0.86,
+    onDone,
+    onStopped: onDone,
+    onError: onDone,
   });
 }

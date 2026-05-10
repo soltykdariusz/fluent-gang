@@ -1,24 +1,28 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 import { theme } from '../../theme/theme';
 import { useTheme } from '../../theme/ThemeProvider';
 
 type Props = {
   current: number;
   total: number;
+  showLabel?: boolean;
+  style?: StyleProp<ViewStyle>;
 };
 
-export function ModuleProgress({ current, total }: Props) {
+export function ModuleProgress({ current, total, showLabel = true, style }: Props) {
   const appTheme = useTheme();
   const progress = total > 0 ? current / total : 0;
 
   return (
-    <View style={styles.wrap}>
+    <View style={[styles.wrap, style]}>
       <View style={[styles.track, { backgroundColor: appTheme.colors.primarySoft }]}>
         <View style={[styles.fill, { backgroundColor: appTheme.colors.primary, width: `${progress * 100}%` }]} />
       </View>
-      <Text style={[styles.label, { color: appTheme.colors.muted }]}>
-        Set {current}/{total}
-      </Text>
+      {showLabel ? (
+        <Text style={[styles.label, { color: appTheme.colors.muted }]}>
+          Set {current}/{total}
+        </Text>
+      ) : null}
     </View>
   );
 }

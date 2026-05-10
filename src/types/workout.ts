@@ -17,6 +17,8 @@ export type ChoiceOption = {
   text: string;
 };
 
+export type NewsAnswer = ChoiceOption;
+
 export type CharacterDialogueLine = {
   characterId: string;
   characterName: string;
@@ -31,6 +33,10 @@ export type WorkoutRound = {
   roundIndex: number;
   prompt: string;
   content: string;
+  sceneTitle?: string;
+  sceneType?: string;
+  headline?: string;
+  story?: string[];
   choices?: ChoiceOption[];
   correctChoiceId?: string;
   feedbackCorrect?: string;

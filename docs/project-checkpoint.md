@@ -21,16 +21,20 @@ This document captures the current product and implementation assumptions after 
 15. The product direction avoids a hard split between main workout and optional extra practice. Machines can have different roles, but the screen should feel like one clean gym.
 16. Read has been renamed to Context.
 17. Speak is now a natural two-character dialogue with line-by-line reveal, automatic speech for new lines, replay through a neutral speaker icon, and previous bubbles staying visible.
+18. The current MVP runtime should start a one-word Word Gym workout from mock JSON data. Multi-word sessions are a future batch mode.
+19. The approved UI direction is the new Context screen: white page, compact tinted scene, characters slightly breaking out of the rounded scene, title audio first, line-by-line dialogue, then question.
+20. The active learning content should stay centered. When new content appears lower on the screen, the view should auto-scroll gently while the progress bar remains visible.
+21. `Next`, `Back to gym`, and paired end actions should remain fixed at the same bottom height in the current bottom action style.
 
 ## Current Runtime MVP
 
 - Expo React Native app with TypeScript.
 - Local onboarding and language/level selection.
 - Mock vocabulary and mock Word Gym session generation.
-- Session size selection before word proposal, including Solo 1-word workouts.
-- Word Gym hub with all MVP exercise modes visible: Context, Check, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, and Fast Flash.
-- Context Exposure with one simple sentence per screen.
-- True/False Check, Mini Usage, Speak with Expo Speech TTS, character dialogue modules, and lightweight quick practice modes.
+- Main workout starts from one mock word in JSON. Session size selection screens still exist, but they are not the primary MVP path.
+- Word Gym hub with all MVP exercise modes visible: Context, The News, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, and Fast Flash.
+- Context scene module with title audio, compact illustration, line-by-line dialogue, subtle blue target-word highlight, micro-step progress, and a final three-choice question.
+- The News mini-story comprehension module with headline audio, `Next`-revealed article, `Next`-revealed question, three choices, and short feedback.
 - Finish Workout flow with word self-assessment: Still new, I recognize it, I can use it.
 - 0.5-second mock ad gate before lesson generation.
 - Bottom tab navigation with Home, Workout, Review, Progress, and Settings.
@@ -40,9 +44,78 @@ This document captures the current product and implementation assumptions after 
 
 Polish the Word Gym and module content:
 
-- refine Word Gym icon proportions, spacing, top menu, typography, and focus-control visual weight
-- define the behavior and content model for Context, Check, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, and Fast Flash
+- first, visually polish `src/screens/WordPreviewScreen.tsx`: machine icon proportions, 3-per-row spacing, top menu, typography, and focus-control visual weight
+- then review `src/screens/ModuleRunnerScreen.tsx` and the workout components for calm dialogue-first UI consistency
+- define the behavior and content model for Context, The News, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, and Fast Flash
 - extend dialogue-based learning where it makes sense
-- expand mock data so every module has sensible examples for several words
+- expand `src/data/mockWorkoutModules.ts` and `src/data/mockSpeakDialogues.json` so every module has sensible examples for several words
 - verify that Solo 1 always trains only the selected word across the flow
 - update product documentation again after the current UI direction stabilizes
+
+## Restart Prompt For Next Thread
+
+Use this prompt when reopening the project in a fresh Codex thread:
+
+```text
+Pracujemy nad aplikacją Fluent Gang w repo `/Users/dariusz/Projects/fluentGang`.
+
+Aktualny branch: `feature/core-learning-flow`.
+Ostatni commit z kierunkiem Word Gym: `fbfbcf2 Build Word Gym module flow`.
+
+Produkt:
+Fluent Gang to contextual vocabulary growth app. To nie jest grammar course ani tradycyjna lekcja. Użytkownik trenuje jedno słowo przez krótkie, proste, angażujące moduły. Ekran Word Gym ma być salą ćwiczeń z maszynami. Użytkownik wybiera ćwiczenie, które lubi. Nie chcemy mocnego podziału na main i optional.
+
+Aktualny stan:
+- `Read` zostało zmienione na `Context`.
+- Word Gym pokazuje moduły: Context, The News, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, Fast Flash.
+- Dodany jest model `WorkoutModule`, `WorkoutRound`, `CharacterDialogueLine` oraz statusy modułów.
+- Dodany jest `ModuleRunnerScreen`.
+- Dodane komponenty: `DialogueScene`, `CharacterBubble`, `CharacterAvatarPlaceholder`, `ChoiceExercise`, `ModuleProgress`, `FocusTimer`.
+- Speak działa jako naturalny dialog dwóch postaci, z kolejnymi wypowiedziami dodawanymi po kliknięciu.
+- Poprzednie dymki w Speak zostają na ekranie.
+- Dymki są neutralne: jasne/szare, delikatna ramka, bez kolorowego tła.
+- Tekst w dymkach nie jest boldowany.
+- Target word nie jest kolorowany ani boldowany w dymku.
+- Nowa wypowiedź jest automatycznie czytana, a neutralny głośniczek pozwala ją odtworzyć ponownie.
+- Mock reklama trwa 0.5 sekundy.
+- Przy sesji Solo 1 ekran wyboru pokazuje tylko jedno słowo.
+- Focus control jest w górnym pasku: okrąg z play/pause, subtelny ring, timer typu `09:42`.
+- Dokumentacja została odświeżona w `README.md`, `docs/design-direction.md`, `docs/flow.md`, `docs/project-checkpoint.md` i powiązanych docs.
+
+Najważniejsze pliki:
+- `src/screens/WordPreviewScreen.tsx`
+- `src/screens/ModuleRunnerScreen.tsx`
+- `src/data/contextScenarios.json`
+- `src/data/mockWorkoutWords.json`
+- `src/data/mockWorkoutModules.ts`
+- `src/data/mockSpeakDialogues.json`
+- `src/components/workout/CharacterBubble.tsx`
+- `src/components/workout/DialogueScene.tsx`
+- `src/components/MascotBubble.tsx`
+- `src/types/workout.ts`
+- `src/types/navigation.ts`
+- `docs/project-checkpoint.md`
+- `docs/design-direction.md`
+- `docs/flow.md`
+
+Najbliższy cel:
+Utrzymaj zaakceptowany kierunek ekranu Context:
+- białe tło aplikacji
+- pasek postępu na górze, bez wchodzenia pod `X`
+- kompaktowy tinted scene rectangle
+- postacie mogą lekko wychodzić poza obrys sceny
+- tytuł sceny z głośniczkiem i automatycznym odczytem
+- `Next`, `Back to gym` i pary akcji zawsze fixed na tej samej wysokości od dołu
+- nowe linie/dialog/pytanie auto-scrollują ekran tak, żeby aktywny content był w centrum
+
+Potem:
+- dopolerować wizualnie ekran Word Gym, szczególnie `WordPreviewScreen.tsx`
+- przejrzeć `ModuleRunnerScreen.tsx` pod spójność z neutralnym, prostym UI
+- doprecyzować zachowanie każdego modułu
+- rozszerzyć dialogowość tam, gdzie ma sens
+- zaprojektować lepszy kierunek dla Super Memo jako krótka historia/dialog + proste pytanie True/False
+- uporządkować mock data dla kilku słów
+- sprawdzić, czy Solo 1 wszędzie trenuje tylko jedno wybrane słowo
+
+Zacznij od sprawdzenia aktualnego kodu i dokumentacji. Potem zaproponuj krótki plan i wykonaj pierwszy slice: wizualny polish Word Gym.
+```

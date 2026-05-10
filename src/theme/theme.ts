@@ -17,7 +17,7 @@ const base = {
 export const lightTheme = {
   mode: 'light' as const,
   colors: {
-    background: fluentPalette.slate[50],
+    background: fluentPalette.slate[0],
     surface: fluentPalette.slate[0],
     text: fluentPalette.slate[900],
     muted: fluentPalette.slate[500],

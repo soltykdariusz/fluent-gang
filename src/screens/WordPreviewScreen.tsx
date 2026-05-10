@@ -3,7 +3,6 @@ import {
   Brain,
   BookOpen,
   Check,
-  CheckCircle2,
   Columns2,
   CircleHelp,
   Dumbbell,
@@ -11,6 +10,7 @@ import {
   Gauge,
   Heart,
   MessageCircle,
+  Newspaper,
   Pause,
   Play,
   Sparkles,
@@ -23,9 +23,11 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Mascot } from '../components/Mascot';
 import { Screen } from '../components/Screen';
+import mockWorkoutWords from '../data/mockWorkoutWords.json';
 import { useAppStore } from '../store/useAppStore';
 import { useTheme } from '../theme/ThemeProvider';
 import { theme } from '../theme/theme';
+import { SelectedWord } from '../types/lesson';
 import { RootStackParamList, WorkoutModule } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'WordPreview'>;
@@ -53,10 +55,10 @@ const workoutTiles: WorkoutTile[] = [
     icon: (color) => <BookOpen size={28} color={color} strokeWidth={2.1} />,
   },
   {
-    module: 'check',
-    title: 'Check',
+    module: 'the_news',
+    title: 'The News',
     tone: 'green',
-    icon: (color) => <CheckCircle2 size={28} color={color} strokeWidth={2.1} />,
+    icon: (color) => <Newspaper size={28} color={color} strokeWidth={2.1} />,
   },
   {
     module: 'use',
@@ -122,8 +124,9 @@ export function WordPreviewScreen({ navigation, route }: Props) {
   const startFocusSession = useAppStore((state) => state.startFocusSession);
   const pauseFocusSession = useAppStore((state) => state.pauseFocusSession);
   const { lesson, completedModules = [] } = route.params;
-  const selectedWords = route.params.selectedWords ?? [];
-  const sessionSize = route.params.sessionSize ?? lesson?.sessionSize;
+  const fallbackWord = mockWorkoutWords[0] as SelectedWord;
+  const selectedWords = route.params.selectedWords?.length ? route.params.selectedWords : [fallbackWord];
+  const sessionSize = route.params.sessionSize ?? lesson?.sessionSize ?? 1;
   const wordCount = sessionSize ?? selectedWords.length;
   const completedSet = new Set(completedModules);
   const completedCount = workoutTiles.filter((tile) => completedSet.has(tile.module)).length;

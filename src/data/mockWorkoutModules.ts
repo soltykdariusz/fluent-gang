@@ -1,20 +1,51 @@
 import { GeneratedLesson } from '../types/lesson';
 import { WorkoutModule } from '../types/navigation';
 import { CharacterDialogueLine, WorkoutModuleData, WorkoutRound } from '../types/workout';
+import contextScenariosJson from './contextScenarios.json';
+import mockNewsRoundsJson from './mockNewsRounds.json';
 import mockSpeakDialogues from './mockSpeakDialogues.json';
 
 const wordId = 'reluctant';
 const targetWord = 'reluctant';
 
-const contextSentences = [
-  'He was reluctant to speak.',
-  'She was reluctant to answer.',
-  'I was reluctant at first.',
-];
+type ContextScenario = {
+  id: string;
+  placeTitle: string;
+  scene: string;
+  lines: CharacterDialogueLine[];
+  question: string;
+  choices: {
+    id: string;
+    text: string;
+  }[];
+  correctChoiceId: string;
+  feedbackCorrect: string;
+  feedbackIncorrect: string;
+};
+
+type NewsRound = {
+  id: string;
+  headline: string;
+  story: string[];
+  question: string;
+  answers: {
+    id: string;
+    text: string;
+  }[];
+  correctAnswerId: string;
+  feedbackCorrect: string;
+  feedbackIncorrect: string;
+};
+
+const contextScenarios = contextScenariosJson as Record<string, ContextScenario[]>;
+const mockNewsRounds = mockNewsRoundsJson as Record<string, NewsRound[]>;
+const contextSentences = contextScenarios[targetWord].map(
+  (scenario) => scenario.lines.at(-1)?.text ?? 'He was reluctant to speak.',
+);
 
 export const workoutModuleOrder: WorkoutModule[] = [
   'context',
-  'check',
+  'the_news',
   'use',
   'speak',
   'argue',
@@ -26,14 +57,17 @@ export const workoutModuleOrder: WorkoutModule[] = [
   'fast_flash',
 ];
 
-export const coreWorkoutModules: WorkoutModule[] = ['context', 'check', 'use', 'speak'];
+export const coreWorkoutModules: WorkoutModule[] = ['context', 'the_news', 'use', 'speak'];
 
 export function getWorkoutModule(lesson: GeneratedLesson, type: WorkoutModule): WorkoutModuleData {
   const lessonWord = lesson.words[0];
   const lessonWordId = lessonWord?.id ?? wordId;
   const lessonTargetWord = lessonWord?.text ?? targetWord;
-  const useMockReluctant = lessonTargetWord.toLowerCase() === targetWord;
-  const rounds = useMockReluctant
+  const lessonTargetKey = lessonTargetWord.toLowerCase();
+  const useMockReluctant = lessonTargetKey === targetWord;
+  const rounds = type === 'context' && contextScenarios[lessonTargetKey]
+    ? createContextRoundsForWord(lessonWordId, lessonTargetWord)
+    : useMockReluctant
     ? createReluctantRounds(type)
     : createGenericRounds(type, lessonWordId, lessonTargetWord, lesson);
 
@@ -57,7 +91,7 @@ export function getWorkoutModule(lesson: GeneratedLesson, type: WorkoutModule): 
 export function getModuleTitle(type: WorkoutModule) {
   const titles: Record<WorkoutModule, string> = {
     context: 'Context',
-    check: 'Check',
+    the_news: 'The News',
     use: 'Use',
     speak: 'Speak',
     argue: 'Argue',
@@ -75,7 +109,7 @@ export function getModuleTitle(type: WorkoutModule) {
 export function getModuleSubtitle(type: WorkoutModule) {
   const subtitles: Record<WorkoutModule, string> = {
     context: 'Meet the word in simple situations.',
-    check: 'Check what the situation means.',
+    the_news: 'Read a tiny story and catch the meaning.',
     use: 'Choose the natural pattern.',
     speak: 'Shadow the word out loud.',
     argue: 'Watch characters disagree about the situation.',
@@ -93,7 +127,7 @@ export function getModuleSubtitle(type: WorkoutModule) {
 export function getModuleIconName(type: WorkoutModule) {
   const icons: Record<WorkoutModule, string> = {
     context: 'book',
-    check: 'check',
+    the_news: 'newspaper',
     use: 'message',
     speak: 'volume',
     argue: 'swords',
@@ -111,7 +145,7 @@ export function getModuleIconName(type: WorkoutModule) {
 function createReluctantRounds(type: WorkoutModule): WorkoutRound[] {
   const roundFactory: Record<WorkoutModule, () => WorkoutRound[]> = {
     context: createContextRounds,
-    check: createCheckRounds,
+    the_news: createTheNewsRounds,
     use: createUseRounds,
     speak: createSpeakRounds,
     argue: createArgueRounds,
@@ -142,42 +176,52 @@ function createRound(
 }
 
 function createContextRounds() {
-  return contextSentences.map((sentence, index) =>
-    createRound('context', index, {
-      prompt: 'Read the tiny scene.',
-      content: sentence,
-      feedbackCorrect: 'Good. One more clean rep.',
-    }),
-  );
+  return createContextRoundsForWord(wordId, targetWord);
 }
 
-function createCheckRounds() {
-  return [
-    createRound('check', 0, {
-      prompt: 'He really wanted to speak.',
-      content: 'He was reluctant to speak.',
-      choices: trueFalseChoices(),
-      correctChoiceId: 'false',
-      feedbackCorrect: 'Correct. He did not really want to speak.',
-      feedbackIncorrect: 'Almost. Reluctant means he did not really want to speak.',
-    }),
-    createRound('check', 1, {
-      prompt: 'She answered without hesitation.',
-      content: 'She was reluctant to answer.',
-      choices: trueFalseChoices(),
-      correctChoiceId: 'false',
-      feedbackCorrect: 'Correct. She hesitated.',
-      feedbackIncorrect: 'Almost. Reluctant carries hesitation.',
-    }),
-    createRound('check', 2, {
-      prompt: 'At first, I did not really want to do it.',
-      content: 'I was reluctant at first.',
-      choices: trueFalseChoices(),
-      correctChoiceId: 'true',
-      feedbackCorrect: 'Correct. That is the feeling.',
-      feedbackIncorrect: 'Almost. Reluctant means not really wanting to do it.',
-    }),
-  ];
+function createContextRoundsForWord(currentWordId: string, currentTargetWord: string) {
+  const scenarios = contextScenarios[currentTargetWord.toLowerCase()] ?? contextScenarios[targetWord];
+
+  return scenarios.map((scenario, index) => ({
+    id: `context-${index + 1}`,
+    moduleType: 'context' as const,
+    wordId: currentWordId,
+    roundIndex: index,
+    targetWord: currentTargetWord,
+    prompt: scenario.question,
+    content: scenario.lines.map((line) => line.text).join(' '),
+    sceneTitle: scenario.placeTitle,
+    sceneType: scenario.scene,
+    dialogueLines: scenario.lines,
+    choices: scenario.choices,
+    correctChoiceId: scenario.correctChoiceId,
+    feedbackCorrect: scenario.feedbackCorrect,
+    feedbackIncorrect: scenario.feedbackIncorrect,
+  }));
+}
+
+function createTheNewsRounds() {
+  return createTheNewsRoundsForWord(wordId, targetWord);
+}
+
+function createTheNewsRoundsForWord(currentWordId: string, currentTargetWord: string): WorkoutRound[] {
+  const rounds = mockNewsRounds[currentTargetWord.toLowerCase()] ?? createGenericNewsTemplates(currentTargetWord);
+
+  return rounds.map((round, index) => ({
+    id: `the-news-${index + 1}`,
+    moduleType: 'the_news',
+    wordId: currentWordId,
+    roundIndex: index,
+    targetWord: currentTargetWord,
+    headline: round.headline,
+    story: round.story,
+    prompt: round.question,
+    content: round.story.join(' '),
+    choices: round.answers,
+    correctChoiceId: round.correctAnswerId,
+    feedbackCorrect: round.feedbackCorrect,
+    feedbackIncorrect: round.feedbackIncorrect,
+  }));
 }
 
 function createUseRounds() {
@@ -576,6 +620,14 @@ function createGenericRounds(
     }));
   }
 
+  if (type === 'context') {
+    return createGenericContextRounds(genericWordId, genericTargetWord, sentence, definition);
+  }
+
+  if (type === 'the_news') {
+    return createTheNewsRoundsForWord(genericWordId, genericTargetWord);
+  }
+
   return [0, 1, 2].map((_, index) => ({
     id: `${type}-${index + 1}`,
     moduleType: type,
@@ -585,9 +637,120 @@ function createGenericRounds(
     content: sentence,
     dialogueLines: getGenericDialogue(type, genericTargetWord, sentence, definition, index),
     choices: getGenericChoices(type, definition),
-    correctChoiceId: type === 'context' ? undefined : 'fits',
+    correctChoiceId: 'fits',
     feedbackCorrect: 'Good. Keep the context in mind.',
     feedbackIncorrect: 'Almost. Use the sentence as your clue.',
+    targetWord: genericTargetWord,
+  }));
+}
+
+function createGenericNewsTemplates(genericTargetWord: string): NewsRound[] {
+  return [
+    {
+      id: `${genericTargetWord}-news-1`,
+      headline: `A small story with ${genericTargetWord}`,
+      story: [
+        'Tom looked at the situation.',
+        'He stopped for a moment.',
+        `People noticed the word ${genericTargetWord} in the story.`,
+        `${genericTargetWord} was the important clue.`,
+      ],
+      question: `What does ${genericTargetWord} mean here?`,
+      answers: [
+        { id: 'fits', text: 'the idea in this situation' },
+        { id: 'opposite', text: 'the opposite idea' },
+        { id: 'random', text: 'a random sound' },
+      ],
+      correctAnswerId: 'fits',
+      feedbackCorrect: `Correct. ${genericTargetWord} gets meaning from the story.`,
+      feedbackIncorrect: `Almost. Use the short news story as your clue.`,
+    },
+    {
+      id: `${genericTargetWord}-news-2`,
+      headline: `${genericTargetWord} appears in a short report`,
+      story: [
+        'Sara read the report.',
+        'The story was short and clear.',
+        `One sentence used ${genericTargetWord}.`,
+        'That word changed the meaning.',
+      ],
+      question: `Why is ${genericTargetWord} important?`,
+      answers: [
+        { id: 'fits', text: 'It explains the situation' },
+        { id: 'opposite', text: 'It means nothing here' },
+        { id: 'random', text: 'It names a person' },
+      ],
+      correctAnswerId: 'fits',
+      feedbackCorrect: 'Correct. The word helps explain the story.',
+      feedbackIncorrect: 'Almost. The word is the clue in the story.',
+    },
+    {
+      id: `${genericTargetWord}-news-3`,
+      headline: `Readers notice ${genericTargetWord}`,
+      story: [
+        'Mike saw the headline.',
+        'He read four simple lines.',
+        `The final line used ${genericTargetWord}.`,
+        'Now the story made more sense.',
+      ],
+      question: `What should the reader understand?`,
+      answers: [
+        { id: 'fits', text: `${genericTargetWord} fits the story` },
+        { id: 'opposite', text: `${genericTargetWord} is not connected` },
+        { id: 'random', text: `${genericTargetWord} is only a name` },
+      ],
+      correctAnswerId: 'fits',
+      feedbackCorrect: 'Correct. The story gives the word context.',
+      feedbackIncorrect: 'Almost. Look at how the word works in the story.',
+    },
+  ];
+}
+
+function createGenericContextRounds(
+  genericWordId: string,
+  genericTargetWord: string,
+  sentence: string,
+  definition: string,
+): WorkoutRound[] {
+  const places = [
+    {
+      sceneTitle: 'In the kitchen',
+      sceneType: 'kitchen',
+      lines: [
+        line('mia', 'Mia', 'talking', sentence),
+        line('ray', 'Ray', 'thinking', `I can hear ${genericTargetWord} there.`),
+        line('mia', 'Mia', 'confident', `${genericTargetWord} fits this moment.`),
+      ],
+    },
+    {
+      sceneTitle: 'At the mechanic',
+      sceneType: 'mechanic',
+      lines: [
+        line('ray', 'Ray', 'talking', sentence),
+        line('mia', 'Mia', 'thinking', `The scene points to ${genericTargetWord}.`),
+        line('ray', 'Ray', 'confused', `So ${genericTargetWord} connects to the situation.`),
+      ],
+    },
+  ];
+
+  return places.map((place, index) => ({
+    id: `context-${index + 1}`,
+    moduleType: 'context',
+    wordId: genericWordId,
+    roundIndex: index,
+    prompt: `What does ${genericTargetWord} mean here?`,
+    content: sentence,
+    sceneTitle: place.sceneTitle,
+    sceneType: place.sceneType,
+    dialogueLines: place.lines,
+    choices: [
+      { id: 'fits', text: definition },
+      { id: 'opposite', text: 'the opposite idea' },
+      { id: 'random', text: 'a random sound' },
+    ],
+    correctChoiceId: 'fits',
+    feedbackCorrect: 'Yes. The scene gives the word its meaning.',
+    feedbackIncorrect: 'Almost. Use the situation as your clue.',
     targetWord: genericTargetWord,
   }));
 }
@@ -618,7 +781,7 @@ function getGenericPrompt(type: WorkoutModule, genericTargetWord: string, index:
 }
 
 function getGenericChoices(type: WorkoutModule, definition: string) {
-  if (type === 'context' || type === 'speak') return undefined;
+  if (type === 'context' || type === 'speak' || type === 'the_news') return undefined;
 
   if (type === 'argue' || type === 'ask' || type === 'super_memo') {
     return [
@@ -685,13 +848,6 @@ function getGenericDialogue(
   }
 
   return undefined;
-}
-
-function trueFalseChoices() {
-  return [
-    { id: 'true', text: 'True' },
-    { id: 'false', text: 'False' },
-  ];
 }
 
 function line(

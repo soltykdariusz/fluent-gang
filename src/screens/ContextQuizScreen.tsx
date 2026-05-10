@@ -47,14 +47,14 @@ export function ContextQuizScreen({ navigation, route }: Props) {
     if (complete) {
       navigation.replace('WordPreview', {
         lesson,
-        completedModules: Array.from(new Set([...completedModules, 'check'])),
+        completedModules: Array.from(new Set([...completedModules, 'the_news'])),
       });
     }
   };
 
   return (
     <Screen>
-      <Text style={styles.instruction}>Check.</Text>
+      <Text style={styles.instruction}>The News.</Text>
       <QuizProgress current={currentIndex + 1} total={lesson.contextQuiz.length} />
       <View style={styles.question}>
         <Text style={styles.wordLabel}>{question.wordText ?? 'Word'}</Text>

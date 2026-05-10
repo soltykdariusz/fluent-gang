@@ -21,7 +21,7 @@ Fluent Gang is a mobile-first Expo app with a small but scalable foundation.
 4. Choose lesson mode.
 5. Generate a mock AI lesson.
 6. Enter Word Gym and choose a practice machine.
-7. Complete short module rounds such as Context, Check, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, or Fast Flash.
+7. Complete short module rounds such as Context, The News, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, or Fast Flash.
 8. Return to Word Gym, choose another machine, or finish the workout.
 9. Track focus time and prepare spaced repetition reviews.
 
