@@ -1,0 +1,94 @@
+{
+  "reluctant": [
+    {
+      "id": "dentist",
+      "title": "At the dentist",
+      "lines": [
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "talking",
+          "text": "Tom is reluctant to sit in the chair."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "thinking",
+          "text": "He looks calm, but he keeps waiting."
+        },
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "confused",
+          "text": "The dentist smiles, but Tom is still reluctant."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "confident",
+          "text": "A short breath may help him start."
+        }
+      ]
+    },
+    {
+      "id": "bar",
+      "title": "At the bar",
+      "lines": [
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "talking",
+          "text": "Sara is reluctant to sing tonight."
+        },
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "confident",
+          "text": "One small song may help her start."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "thinking",
+          "text": "She is reluctant because everyone is watching."
+        },
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "happy",
+          "text": "Her friend can sing the first line with her."
+        }
+      ]
+    },
+    {
+      "id": "shop",
+      "title": "In the shop",
+      "lines": [
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "confused",
+          "text": "Mike is reluctant to buy the jacket."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "happy",
+          "text": "The price is high, so he needs time."
+        },
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "talking",
+          "text": "He likes the color, but he is reluctant."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "confident",
+          "text": "He can wait and come back tomorrow."
+        }
+      ]
+    }
+  ]
+}

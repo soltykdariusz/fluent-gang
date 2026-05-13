@@ -1,13 +1,28 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Check, ChevronRight, Newspaper, Play, Volume2, X } from 'lucide-react-native';
+import { Check, ChevronRight, Mic2, Newspaper, Volume2, X } from 'lucide-react-native';
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Pressable, ScrollView, StyleProp, StyleSheet, Text, TextStyle, View } from 'react-native';
+import {
+  Image,
+  ImageSourcePropType,
+  LayoutAnimation,
+  Animated,
+  Pressable,
+  ScrollView,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import chameleonAvatar from '../../assets/mascots/chameleon-avatar.png';
 import rayAvatar from '../../assets/mascots/ray-avatar.png';
 import { AnimatedReveal } from '../components/AnimatedReveal';
 import { AppButton } from '../components/AppButton';
 import { HighlightedText } from '../components/HighlightedText';
+import { ChunkArrangeExercise } from '../components/workout/ChunkArrangeExercise';
+import { CharacterBubble } from '../components/workout/CharacterBubble';
 import { ChoiceExercise } from '../components/workout/ChoiceExercise';
 import { DialogueScene } from '../components/workout/DialogueScene';
 import { ExerciseTopBar } from '../components/workout/ExerciseTopBar';
@@ -19,6 +34,7 @@ import { RootStackParamList } from '../types/navigation';
 import { ChoiceOption, WorkoutRound } from '../types/workout';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ModuleRunner'>;
+type ShadowPhase = 'listen' | 'complete';
 
 export function ModuleRunnerScreen({ navigation, route }: Props) {
   const appTheme = useTheme();
@@ -27,9 +43,20 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
   const module = useMemo(() => getWorkoutModule(lesson, moduleType), [lesson, moduleType]);
   const isContextModule = moduleType === 'context';
   const isNewsModule = moduleType === 'the_news';
+  const isUseModule = moduleType === 'use';
+  const isShadowModule = moduleType === 'speak';
   const [roundIndex, setRoundIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [rejectedChoices, setRejectedChoices] = useState<Record<string, string[]>>({});
+  const [selectedChunks, setSelectedChunks] = useState<Record<string, string[]>>({});
+  const [chunkErrors, setChunkErrors] = useState<Record<string, boolean>>({});
+  const [chunkSoftSuccesses, setChunkSoftSuccesses] = useState<Record<string, boolean>>({});
+  const [showPodcastQuestion, setShowPodcastQuestion] = useState(false);
+  const [isPodcastPlaying, setIsPodcastPlaying] = useState(false);
+  const [shadowPhase, setShadowPhase] = useState<ShadowPhase>('listen');
+  const [showShadowRepeatCue, setShowShadowRepeatCue] = useState(false);
+  const [shadowRepeatCollapsing, setShadowRepeatCollapsing] = useState(false);
+  const [shadowTitleReady, setShadowTitleReady] = useState(false);
   const [visibleDialogueCount, setVisibleDialogueCount] = useState(isContextModule ? 0 : 1);
   const [showContextQuestion, setShowContextQuestion] = useState(false);
   const [showNewsStory, setShowNewsStory] = useState(false);
@@ -41,22 +68,19 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
   const [isTitleAudioActive, setIsTitleAudioActive] = useState(false);
   const [activeNewsStoryAudioPart, setActiveNewsStoryAudioPart] = useState<number | null>(null);
   const round = module.rounds[roundIndex];
+  const previousRound = module.rounds[roundIndex - 1];
   const roundDialogueLines = showExtraDialogue
     ? [...(round.dialogueLines ?? []), ...(round.extraDialogueLines ?? [])]
     : round.dialogueLines ?? [];
-  const dialogueLines =
-    moduleType === 'speak'
-      ? module.rounds
-          .slice(0, roundIndex + 1)
-          .flatMap((item) => item.dialogueLines ?? [])
-      : roundDialogueLines;
+  const dialogueLines = roundDialogueLines;
   const selectedChoiceId = answers[round.id];
   const rejectedChoicesForRound = rejectedChoices[round.id] ?? [];
   const hasChoices = Boolean(round.choices?.length);
   const answered = selectedChoiceId !== undefined;
-  const visibleDialogueTotal = moduleType === 'speak' ? dialogueLines.length : visibleDialogueCount;
+  const visibleDialogueTotal = visibleDialogueCount;
   const allDialogueVisible = dialogueLines.length === 0 || visibleDialogueTotal >= dialogueLines.length;
   const isLastRound = roundIndex === module.rounds.length - 1;
+  const showShadowCompletion = isShadowModule && shadowPhase === 'complete';
   const dialogueBased = dialogueLines.length > 0;
   const showQuestion = !isContextModule || showContextQuestion;
   const contextProgressTotal = Math.max(1, dialogueLines.length + 2);
@@ -67,9 +91,28 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
     : roundIndex + 1;
   const newsStoryPartTotal = isNewsModule ? getNewsStoryParts(round).length : 0;
   const newsProgressCurrent = showNewsQuestion ? newsStoryPartTotal + 2 : visibleNewsStoryPartCount + 1;
-  const displayedProgressCurrent = isContextModule ? contextProgressCurrent : isNewsModule ? newsProgressCurrent : roundIndex + 1;
-  const displayedProgressTotal = isContextModule ? contextProgressTotal : isNewsModule ? newsStoryPartTotal + 2 : module.rounds.length;
-  const usesCompactProgress = isContextModule || isNewsModule;
+  const shadowProgressCurrent = roundIndex + 1;
+  const shadowProgressTotal = module.rounds.length;
+  const displayedProgressCurrent = isContextModule
+    ? contextProgressCurrent
+    : isNewsModule
+      ? newsProgressCurrent
+      : isShadowModule
+        ? shadowProgressCurrent
+        : roundIndex + 1;
+  const displayedProgressTotal = isContextModule
+    ? contextProgressTotal
+    : isNewsModule
+      ? newsStoryPartTotal + 2
+      : isShadowModule
+        ? shadowProgressTotal
+        : module.rounds.length;
+  const usesCompactProgress = isContextModule || isNewsModule || isUseModule || isShadowModule;
+  const selectedChunkIds = selectedChunks[round.id] ?? [];
+  const chunkError = chunkErrors[round.id] ?? false;
+  const chunkSoftSuccess = chunkSoftSuccesses[round.id] ?? false;
+  const isShadowSceneStart = isShadowModule && (roundIndex === 0 || previousRound?.sceneTitle !== round.sceneTitle);
+  const canPlayShadowLine = !isShadowSceneStart || shadowTitleReady;
 
   useEffect(() => {
     if (isContextModule || isNewsModule) {
@@ -87,20 +130,65 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
   }, [isContextModule, isNewsModule, round.headline, round.id, round.sceneTitle]);
 
   useEffect(() => {
-    if (!isContextModule && !isNewsModule) {
+    if (!isUseModule) {
+      return;
+    }
+
+    setShowPodcastQuestion(false);
+    setIsPodcastPlaying(true);
+    setIsNarrating(true);
+    void playSentenceAudio(round.content, '', () => {
+      setIsPodcastPlaying(false);
+      setIsNarrating(false);
+      setShowPodcastQuestion(true);
+    });
+  }, [isUseModule, round.content, round.id]);
+
+  useEffect(() => {
+    if (!isShadowModule) {
+      return;
+    }
+
+    setShowShadowRepeatCue(false);
+
+    if (!isShadowSceneStart) {
+      setShadowTitleReady(true);
+      return;
+    }
+
+    setShadowTitleReady(false);
+    setIsNarrating(true);
+    setIsTitleAudioActive(true);
+
+    void playSentenceAudio(round.sceneTitle ?? 'Shadowing', '', () => {
+      setIsTitleAudioActive(false);
+      setIsNarrating(false);
+      setShadowTitleReady(true);
+    });
+  }, [isShadowModule, isShadowSceneStart, round.id, round.sceneTitle]);
+
+  useEffect(() => {
+    if (!isContextModule && !isNewsModule && !isShadowModule) {
+      return undefined;
+    }
+
+    if (isShadowModule && shadowPhase === 'complete') {
       return undefined;
     }
 
     const timeout = setTimeout(() => {
       scrollRef.current?.scrollToEnd({ animated: true });
-    }, 120);
+    }, isShadowModule ? 260 : 120);
 
     return () => clearTimeout(timeout);
   }, [
     answered,
     isContextModule,
     isNewsModule,
+    isShadowModule,
     round.id,
+    roundIndex,
+    shadowPhase,
     showContextQuestion,
     showNewsQuestion,
     showNewsStory,
@@ -151,6 +239,76 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
     }
   };
 
+  const addChunk = (chunkId: string) => {
+    if (isUseModule && !(round.correctOrder ?? []).includes(chunkId)) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setRejectedChoices((value) => ({
+        ...value,
+        [round.id]: Array.from(new Set([...(value[round.id] ?? []), chunkId])),
+      }));
+      setChunkErrors((value) => ({ ...value, [round.id]: false }));
+      setChunkSoftSuccesses((value) => ({ ...value, [round.id]: false }));
+      return;
+    }
+
+    if (isUseModule && selectedChunkIds.length >= (round.correctOrder?.length ?? 3)) {
+      return;
+    }
+
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setSelectedChunks((value) => ({
+      ...value,
+      [round.id]: [...(value[round.id] ?? []), chunkId],
+    }));
+    setChunkErrors((value) => ({ ...value, [round.id]: false }));
+    setChunkSoftSuccesses((value) => ({ ...value, [round.id]: false }));
+  };
+
+  const removeChunk = (chunkId: string) => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setSelectedChunks((value) => ({
+      ...value,
+      [round.id]: (value[round.id] ?? []).filter((selectedChunkId) => selectedChunkId !== chunkId),
+    }));
+    setChunkErrors((value) => ({ ...value, [round.id]: false }));
+    setChunkSoftSuccesses((value) => ({ ...value, [round.id]: false }));
+  };
+
+  const checkChunks = () => {
+    const correctOrder = round.correctOrder ?? [];
+    const correct = selectedChunkIds.join('|') === correctOrder.join('|');
+
+    if (correct) {
+      setAnswers({ ...answers, [round.id]: round.correctSentence ?? selectedChunkIds.join(' ') });
+      setChunkErrors((value) => ({ ...value, [round.id]: false }));
+      setChunkSoftSuccesses((value) => ({ ...value, [round.id]: false }));
+      return;
+    }
+
+    if (isUseModule && areSameIdSets(selectedChunkIds, correctOrder)) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setSelectedChunks((value) => ({ ...value, [round.id]: correctOrder }));
+      setAnswers({ ...answers, [round.id]: round.correctSentence ?? correctOrder.join(' ') });
+      setChunkErrors((value) => ({ ...value, [round.id]: false }));
+      setChunkSoftSuccesses((value) => ({ ...value, [round.id]: true }));
+      return;
+    } else if (isUseModule) {
+      const wrongChunkIds = selectedChunkIds.filter((chunkId) => !correctOrder.includes(chunkId));
+      setRejectedChoices((value) => ({
+        ...value,
+        [round.id]: Array.from(new Set([...(value[round.id] ?? []), ...wrongChunkIds])),
+      }));
+      setSelectedChunks((value) => ({
+        ...value,
+        [round.id]: selectedChunkIds.filter((chunkId) => correctOrder.includes(chunkId)),
+      }));
+    } else {
+      setSelectedChunks((value) => ({ ...value, [round.id]: [] }));
+    }
+
+    setChunkErrors((value) => ({ ...value, [round.id]: true }));
+  };
+
   const goNext = () => {
     stopSentenceAudio();
     setIsTitleAudioActive(false);
@@ -165,8 +323,17 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
       setVisibleNewsStoryPartCount(0);
       setShowNewsQuestion(false);
       setShowExtraDialogue(false);
+      setShowPodcastQuestion(false);
+      setIsPodcastPlaying(false);
       setIsNewsTyping(false);
       setRejectedChoices({});
+      setSelectedChunks({});
+      setChunkErrors({});
+      setChunkSoftSuccesses({});
+      setShadowPhase('listen');
+      setShowShadowRepeatCue(false);
+      setShadowRepeatCollapsing(false);
+      setShadowTitleReady(false);
       return;
     }
 
@@ -176,8 +343,32 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
     });
   };
 
+  const advanceShadowing = () => {
+    stopSentenceAudio();
+    setIsNarrating(false);
+
+    if (!isLastRound) {
+      setShadowRepeatCollapsing(true);
+      setTimeout(() => {
+        setRoundIndex((value) => value + 1);
+        setShadowPhase('listen');
+        setShowShadowRepeatCue(false);
+        setShadowRepeatCollapsing(false);
+        setShadowTitleReady(false);
+      }, 620);
+      return;
+    }
+
+    setShadowRepeatCollapsing(true);
+    setTimeout(() => {
+      setShowShadowRepeatCue(false);
+      setShadowPhase('complete');
+      setShadowRepeatCollapsing(false);
+    }, 620);
+  };
+
   const canContinue = !hasChoices || answered;
-  const selectedCorrect = selectedChoiceId === round.correctChoiceId;
+  const selectedCorrect = isUseModule ? answered : selectedChoiceId === round.correctChoiceId;
   const feedback = selectedCorrect ? round.feedbackCorrect : round.feedbackIncorrect;
   const bottomButtonTitle = isNewsModule
     ? isLastRound
@@ -185,11 +376,15 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
       : 'Next story'
     : isLastRound
       ? 'Finish machine'
-      : moduleType === 'speak'
+      : isShadowModule
         ? 'Continue'
         : 'Next set';
   const handleContextAudioStart = useCallback(() => setIsNarrating(true), []);
   const handleContextAudioEnd = useCallback(() => setIsNarrating(false), []);
+  const handleShadowAudioEnd = useCallback(() => {
+    setIsNarrating(false);
+    setShowShadowRepeatCue(true);
+  }, []);
   const handleNewsStoryAudioStart = useCallback((partIndex: number) => {
     setIsNarrating(true);
     setActiveNewsStoryAudioPart(partIndex);
@@ -229,10 +424,28 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
     [activeNewsStoryAudioPart],
   );
 
+  const togglePodcastAudio = useCallback(() => {
+    if (isPodcastPlaying) {
+      stopSentenceAudio();
+      setIsPodcastPlaying(false);
+      setIsNarrating(false);
+      setShowPodcastQuestion(true);
+      return;
+    }
+
+    setIsPodcastPlaying(true);
+    setIsNarrating(true);
+    void playSentenceAudio(round.content, '', () => {
+      setIsPodcastPlaying(false);
+      setIsNarrating(false);
+      setShowPodcastQuestion(true);
+    });
+  }, [isPodcastPlaying, round.content]);
+
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={[styles.safeArea, { backgroundColor: appTheme.colors.background }]}>
       <View style={styles.root}>
-        {!isContextModule && !isNewsModule ? (
+        {!isContextModule && !isNewsModule && !isUseModule && !isShadowModule ? (
           <View style={styles.header}>
             <View style={styles.headerCopy}>
               <Text style={[styles.kicker, { color: appTheme.colors.muted }]}>Word Gym</Text>
@@ -284,7 +497,22 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
             />
           ) : null}
 
-          {dialogueBased ? (
+          {isShadowModule ? (
+            <ShadowingRoundExercise
+              rounds={module.rounds}
+              activeRoundIndex={roundIndex}
+              phase={shadowPhase}
+              showRepeatCue={showShadowRepeatCue}
+              repeatCollapsing={shadowRepeatCollapsing}
+              canPlayActiveLine={canPlayShadowLine}
+              titleAudioActive={isTitleAudioActive}
+              onTitleAudioToggle={toggleTitleAudio}
+              onAudioStart={handleContextAudioStart}
+              onAudioEnd={handleShadowAudioEnd}
+            />
+          ) : null}
+
+          {dialogueBased && !isShadowModule ? (
             <Pressable
               accessibilityRole="button"
               onPress={isContextModule ? undefined : advanceDialogue}
@@ -300,7 +528,7 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
             </Pressable>
           ) : null}
 
-          {moduleType === 'speak' && !dialogueBased ? (
+          {isShadowModule && !dialogueBased ? (
             <View style={[styles.audioMock, { backgroundColor: appTheme.colors.primarySoft }]}>
               <Volume2 size={24} color={appTheme.colors.primary} strokeWidth={2.2} />
               <HighlightedText
@@ -319,7 +547,23 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
             </View>
           ) : null}
 
-          {!dialogueBased && moduleType !== 'speak' && !isContextModule && !isNewsModule ? (
+          {isUseModule ? (
+            <UseRoundExercise
+              round={round}
+              selectedChunkIds={selectedChunkIds}
+              checked={answered}
+              hasError={chunkError}
+              showQuestion={showPodcastQuestion}
+              isPlaying={isPodcastPlaying}
+              rejectedChunkIds={rejectedChoicesForRound}
+              onToggleAudio={togglePodcastAudio}
+              onAddChunk={addChunk}
+              onRemoveChunk={removeChunk}
+              onCheck={checkChunks}
+            />
+          ) : null}
+
+          {!dialogueBased && !isShadowModule && !isContextModule && !isNewsModule && !isUseModule ? (
             <View style={styles.simpleScene}>
               <Text style={[styles.prompt, { color: appTheme.colors.text }]}>{round.prompt}</Text>
               <HighlightedText
@@ -348,7 +592,7 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
             />
           ) : null}
 
-          {allDialogueVisible && round.choices && !isContextModule && !isNewsModule ? (
+          {allDialogueVisible && round.choices && !isContextModule && !isNewsModule && !isUseModule ? (
             <ChoiceExercise
               choices={round.choices}
               selectedChoiceId={selectedChoiceId}
@@ -357,7 +601,7 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
             />
           ) : null}
 
-          {answered && feedback && !isNewsModule && !isContextModule ? (
+          {answered && feedback && !isNewsModule && !isContextModule && !isUseModule ? (
             <View style={[styles.feedback, { backgroundColor: appTheme.colors.primarySoft }]}>
               <Text
                 style={[
@@ -374,11 +618,11 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
 
         <View
           style={[
-            isContextModule || isNewsModule ? styles.contextBottomAction : styles.bottomAction,
-            (isContextModule || isNewsModule) && answered
+            isContextModule || isNewsModule || isUseModule || isShadowModule ? styles.contextBottomAction : styles.bottomAction,
+            ((isContextModule || isNewsModule || isUseModule) && answered) || showShadowCompletion
               ? [
                   styles.contextBottomActionAnswered,
-                  { backgroundColor: selectedCorrect ? appTheme.colors.playfulMint : appTheme.colors.dangerSoft },
+                  { backgroundColor: selectedCorrect || showShadowCompletion ? appTheme.colors.playfulMint : appTheme.colors.dangerSoft },
                 ]
               : null,
           ]}
@@ -429,7 +673,22 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
             </SuccessActionPanel>
           ) : null}
 
-          {!isContextModule && !allDialogueVisible ? (
+          {isUseModule && answered ? (
+            <SuccessActionPanel label={chunkSoftSuccess ? 'Almost excellent!' : 'Excellent!'}>
+              <View style={styles.stackedActionButtons}>
+                {!isLastRound ? (
+                  <AppButton
+                    title="Next"
+                    onPress={goNext}
+                    icon={<ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />}
+                  />
+                ) : null}
+                <AppButton title="Back to gym" variant={isLastRound ? 'primary' : 'secondary'} onPress={finishModule} />
+              </View>
+            </SuccessActionPanel>
+          ) : null}
+
+          {!isContextModule && !isUseModule && !isShadowModule && !allDialogueVisible ? (
             <AppButton
               title="Next"
               onPress={advanceDialogue}
@@ -437,18 +696,36 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
             />
           ) : null}
 
-          {!isContextModule && !isNewsModule && allDialogueVisible ? (
+          {isShadowModule && !isLastRound ? (
+            <AppButton
+              title="I repeated it"
+              onPress={advanceShadowing}
+              disabled={isNarrating || !showShadowRepeatCue || shadowRepeatCollapsing}
+              icon={<ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />}
+            />
+          ) : null}
+
+          {isShadowModule && isLastRound && shadowPhase !== 'complete' ? (
+            <AppButton
+              title="I repeated it"
+              onPress={advanceShadowing}
+              disabled={isNarrating || !showShadowRepeatCue || shadowRepeatCollapsing}
+              icon={<ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />}
+            />
+          ) : null}
+
+          {isShadowModule && showShadowCompletion ? (
+            <SuccessActionPanel>
+              <AppButton title="Back to gym" onPress={finishModule} disabled={isNarrating} />
+            </SuccessActionPanel>
+          ) : null}
+
+          {!isContextModule && !isNewsModule && !isUseModule && !isShadowModule && allDialogueVisible ? (
             <AppButton
               title={bottomButtonTitle}
               onPress={goNext}
               disabled={!canContinue}
-              icon={
-                moduleType === 'speak' ? (
-                  <Play size={17} color={theme.colors.surface} strokeWidth={2.4} />
-                ) : (
-                  <ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />
-                )
-              }
+              icon={<ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />}
             />
           ) : null}
         </View>
@@ -461,6 +738,7 @@ export function ModuleRunnerScreen({ navigation, route }: Props) {
     setIsNarrating(false);
     setIsTitleAudioActive(false);
     setActiveNewsStoryAudioPart(null);
+    setIsPodcastPlaying(false);
     navigation.replace('WordPreview', {
       lesson,
       completedModules: Array.from(new Set([...completedModules, moduleType])),
@@ -502,6 +780,208 @@ function ContextSceneCard({
         textStyle={styles.contextSceneTitle}
       />
     </View>
+  );
+}
+
+function ShadowingSceneCard({ rounds }: { rounds: WorkoutRound[] }) {
+  const appTheme = useTheme();
+  const participants = getShadowingParticipants(rounds);
+
+  return (
+    <View style={styles.shadowSceneWrap}>
+      <View style={[styles.shadowSceneBackdrop, { backgroundColor: appTheme.colors.accentSoft }]}>
+        <View style={styles.shadowAvatars}>
+          {participants.map((participant, index) =>
+            participant.source ? (
+              <Image
+                key={participant.id}
+                source={participant.source}
+                resizeMode="cover"
+                style={[
+                  styles.shadowAvatarImage,
+                  index % 2 === 0 ? styles.shadowAvatarLow : styles.shadowAvatarHigh,
+                ]}
+              />
+            ) : (
+              <View
+                key={participant.id}
+                style={[
+                  styles.shadowYouAvatar,
+                  { backgroundColor: appTheme.colors.surface },
+                  index % 2 === 0 ? styles.shadowAvatarLow : styles.shadowAvatarHigh,
+                ]}
+              >
+                <Text style={[styles.shadowYouText, { color: appTheme.colors.accent }]}>{participant.name}</Text>
+              </View>
+            ),
+          )}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function ShadowingRoundExercise({
+  rounds,
+  activeRoundIndex,
+  phase,
+  showRepeatCue,
+  repeatCollapsing,
+  canPlayActiveLine,
+  titleAudioActive,
+  onTitleAudioToggle,
+  onAudioStart,
+  onAudioEnd,
+}: {
+  rounds: WorkoutRound[];
+  activeRoundIndex: number;
+  phase: ShadowPhase;
+  showRepeatCue: boolean;
+  repeatCollapsing: boolean;
+  canPlayActiveLine: boolean;
+  titleAudioActive: boolean;
+  onTitleAudioToggle: (text: string) => void;
+  onAudioStart: () => void;
+  onAudioEnd: () => void;
+}) {
+  const appTheme = useTheme();
+  const visibleRounds = rounds.slice(0, activeRoundIndex + 1);
+  const activeRound = rounds[activeRoundIndex] ?? rounds[0];
+
+  return (
+    <View style={styles.shadowRoundWrap}>
+      <ShadowingSceneCard rounds={rounds} />
+      <ModuleAudioTitle
+        text={activeRound?.sceneTitle ?? 'Shadowing'}
+        active={titleAudioActive}
+        onToggle={onTitleAudioToggle}
+        textStyle={styles.contextSceneTitle}
+      />
+      {visibleRounds.map((visibleRound, index) => {
+        const guideLine = getShadowingGuideLine(visibleRound);
+        const isActiveRound = index === activeRoundIndex;
+
+        return (
+          <View key={visibleRound.id} style={styles.shadowLineGroup}>
+            <CharacterBubble
+              line={guideLine}
+              highlightTerms={[visibleRound.targetWord]}
+              autoPlay={isActiveRound && phase === 'listen' && canPlayActiveLine}
+              showAudio
+              onAudioStart={isActiveRound ? onAudioStart : undefined}
+              onAudioEnd={isActiveRound ? onAudioEnd : undefined}
+            />
+            {isActiveRound && showRepeatCue ? (
+              <AnimatedShadowRepeat collapsing={repeatCollapsing} style={styles.shadowCueWrap}>
+                <PulsingRepeatCue />
+              </AnimatedShadowRepeat>
+            ) : null}
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+function PulsingRepeatCue() {
+  const appTheme = useTheme();
+  const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, {
+          toValue: 1,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulse, {
+          toValue: 0,
+          duration: 900,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    loop.start();
+    return () => loop.stop();
+  }, [pulse]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.shadowCuePill,
+        {
+          backgroundColor: appTheme.colors.accentSoft,
+          opacity: pulse.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0.72, 1],
+          }),
+          transform: [
+            {
+              scale: pulse.interpolate({
+                inputRange: [0, 1],
+                outputRange: [1, 1.025],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      <Text style={[styles.shadowCueText, { color: appTheme.colors.accent }]}>repeat after me</Text>
+    </Animated.View>
+  );
+}
+
+function AnimatedShadowRepeat({
+  collapsing,
+  style,
+  children,
+}: {
+  collapsing: boolean;
+  style: StyleProp<ViewStyle>;
+  children: ReactNode;
+}) {
+  const progress = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (!collapsing) {
+      progress.setValue(1);
+      return;
+    }
+
+    Animated.timing(progress, {
+      toValue: 0,
+      duration: 580,
+      useNativeDriver: true,
+    }).start();
+  }, [collapsing, progress]);
+
+  return (
+    <Animated.View
+      style={[
+        style,
+        {
+          opacity: progress,
+          transform: [
+            {
+              translateY: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-18, 0],
+              }),
+            },
+            {
+              scaleY: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.82, 1],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      {children}
+    </Animated.View>
   );
 }
 
@@ -662,6 +1142,82 @@ function TheNewsRound({
   );
 }
 
+function UseRoundExercise({
+  round,
+  selectedChunkIds,
+  checked,
+  hasError,
+  showQuestion,
+  isPlaying,
+  rejectedChunkIds,
+  onToggleAudio,
+  onAddChunk,
+  onRemoveChunk,
+  onCheck,
+}: {
+  round: WorkoutRound;
+  selectedChunkIds: string[];
+  checked: boolean;
+  hasError: boolean;
+  showQuestion: boolean;
+  isPlaying: boolean;
+  rejectedChunkIds: string[];
+  onToggleAudio: () => void;
+  onAddChunk: (chunkId: string) => void;
+  onRemoveChunk: (chunkId: string) => void;
+  onCheck: () => void;
+}) {
+  const appTheme = useTheme();
+  const chunks = round.chunks ?? [];
+  const correctOrder = round.correctOrder ?? [];
+
+  return (
+    <View style={styles.useWrap}>
+      <View style={styles.podcastHero}>
+        <View style={[styles.podcastIconFrame, { backgroundColor: appTheme.colors.accentSoft }]}>
+          <Mic2 size={34} color={appTheme.colors.accent} strokeWidth={2.2} />
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={isPlaying ? 'Stop podcast' : 'Play podcast'}
+          onPress={onToggleAudio}
+          style={({ pressed }) => [
+            styles.podcastSpeaker,
+            { backgroundColor: isPlaying ? appTheme.colors.accentSoft : appTheme.colors.surface, borderColor: appTheme.colors.border },
+            pressed ? styles.pressed : null,
+          ]}
+        >
+          <Volume2 size={34} color={isPlaying ? appTheme.colors.accent : appTheme.colors.muted} strokeWidth={2.3} />
+        </Pressable>
+      </View>
+
+      {showQuestion ? (
+        <View style={styles.usePromptBlock}>
+          <Text style={[styles.usePrompt, { color: getInkColor(appTheme) }]}>{round.prompt}</Text>
+          <Text style={[styles.useHint, { color: appTheme.colors.muted }]}>Put them in the right order.</Text>
+          <ChunkArrangeExercise
+            chunks={chunks}
+            selectedChunkIds={selectedChunkIds}
+            correctOrder={correctOrder}
+            checked={checked}
+            rejectedChunkIds={rejectedChunkIds}
+            onAdd={onAddChunk}
+            onRemove={onRemoveChunk}
+            onCheck={onCheck}
+          />
+          {hasError ? (
+            <View style={[styles.useInlineFeedback, { backgroundColor: appTheme.colors.dangerSoft }]}>
+              <Text style={[styles.useInlineFeedbackText, { color: appTheme.colors.danger }]}>
+                {round.feedbackIncorrect}
+              </Text>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 function TypewriterText({
   text,
   style,
@@ -700,29 +1256,33 @@ function ModuleAudioTitle({
   active,
   onToggle,
   textStyle,
+  showAudio = true,
 }: {
   text: string;
   active: boolean;
   onToggle: (text: string) => void;
   textStyle: StyleProp<TextStyle>;
+  showAudio?: boolean;
 }) {
   const appTheme = useTheme();
 
   return (
     <View style={styles.moduleTitleWrap}>
       <View style={styles.moduleTitleRow}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={`Play ${text}`}
-          onPress={() => onToggle(text)}
-          style={({ pressed }) => [styles.contextTitleAudio, pressed ? styles.pressed : null]}
-        >
-          <Volume2
-            size={18}
-            color={active ? appTheme.colors.accent : appTheme.colors.muted}
-            strokeWidth={2.4}
-          />
-        </Pressable>
+        {showAudio ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Play ${text}`}
+            onPress={() => onToggle(text)}
+            style={({ pressed }) => [styles.contextTitleAudio, pressed ? styles.pressed : null]}
+          >
+            <Volume2
+              size={18}
+              color={active ? appTheme.colors.accent : appTheme.colors.muted}
+              strokeWidth={2.4}
+            />
+          </Pressable>
+        ) : null}
         <TypewriterText text={text} style={[textStyle, { color: getInkColor(appTheme) }]} />
       </View>
     </View>
@@ -796,6 +1356,58 @@ function getNewsStoryParts(round: WorkoutRound) {
   return [story.slice(0, splitIndex).join(' '), story.slice(splitIndex).join(' ')].filter(Boolean);
 }
 
+function areSameIdSets(first: string[], second: string[]) {
+  if (first.length !== second.length) return false;
+
+  const firstSet = new Set(first);
+  return second.every((item) => firstSet.has(item));
+}
+
+function getShadowingGuideLine(round?: WorkoutRound) {
+  return round?.dialogueLines?.[0] ?? {
+    characterId: 'ray',
+    characterName: 'Ray',
+    emotion: 'talking' as const,
+    text: round?.content ?? '',
+  };
+}
+
+function getShadowingParticipants(rounds: WorkoutRound[]) {
+  const participantMap = new Map<string, { id: string; name: string; source?: ImageSourcePropType }>();
+
+  rounds.forEach((round) => {
+    const line = round.dialogueLines?.[0];
+    const id = line?.characterId ?? 'ray';
+
+    if (!participantMap.has(id)) {
+      participantMap.set(id, {
+        id,
+        name: line?.characterName ?? 'Ray',
+        source: getCharacterAvatarSource(id),
+      });
+    }
+  });
+
+  return [
+    ...participantMap.values(),
+    {
+      id: 'you',
+      name: 'You',
+    },
+  ];
+}
+
+function getCharacterAvatarSource(characterId: string) {
+  const avatarByCharacter: Record<string, ImageSourcePropType> = {
+    mia: chameleonAvatar,
+    polly: chameleonAvatar,
+    ray: rayAvatar,
+    zac: rayAvatar,
+  };
+
+  return avatarByCharacter[characterId];
+}
+
 function getNewsTypewriterInterval(text: string) {
   const wordCount = Math.max(1, text.trim().split(/\s+/).length);
   const estimatedSpeechMs = Math.max(1_200, (wordCount / 130) * 60_000 - 4_500);
@@ -811,14 +1423,14 @@ function getContextSceneColor(sceneType?: string) {
   return '#FFF3E6';
 }
 
-function SuccessActionPanel({ children }: { children: ReactNode }) {
+function SuccessActionPanel({ children, label = 'Excellent!' }: { children: ReactNode; label?: string }) {
   const appTheme = useTheme();
 
   return (
     <View style={styles.contextActionStack}>
       <View style={styles.contextBottomFeedbackRow}>
         <Check size={22} color={appTheme.colors.primary} strokeWidth={2.8} />
-        <Text style={[styles.contextBottomFeedbackText, { color: appTheme.colors.primary }]}>Excellent!</Text>
+        <Text style={[styles.contextBottomFeedbackText, { color: appTheme.colors.primary }]}>{label}</Text>
       </View>
       {children}
     </View>
@@ -952,6 +1564,74 @@ const styles = StyleSheet.create({
     gap: theme.spacing.sm,
     paddingTop: theme.spacing.xs,
     marginBottom: theme.spacing.xs,
+  },
+  shadowSceneWrap: {
+    alignItems: 'center',
+    paddingTop: theme.spacing.xs,
+    marginBottom: theme.spacing.lg,
+  },
+  shadowRoundWrap: {
+    gap: theme.spacing.md,
+    paddingBottom: 180,
+  },
+  shadowLineGroup: {
+    gap: theme.spacing.sm,
+  },
+  shadowCueWrap: {
+    paddingLeft: 58,
+    alignItems: 'flex-start',
+  },
+  shadowCuePill: {
+    minHeight: 34,
+    borderRadius: 17,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.xs,
+  },
+  shadowCueText: {
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '800',
+    letterSpacing: 0,
+  },
+  shadowSceneBackdrop: {
+    width: 178,
+    height: 104,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'visible',
+  },
+  shadowAvatars: {
+    width: '100%',
+    height: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.xs,
+  },
+  shadowAvatarImage: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+  },
+  shadowAvatarLow: {
+    marginTop: 16,
+  },
+  shadowAvatarHigh: {
+    marginBottom: 12,
+  },
+  shadowYouAvatar: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shadowYouText: {
+    fontSize: 17,
+    lineHeight: 23,
+    fontWeight: '700',
   },
   contextSceneCard: {
     width: '48%',
@@ -1188,6 +1868,66 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.sm,
   },
   newsFeedbackText: {
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  useWrap: {
+    gap: theme.spacing.md,
+  },
+  podcastHero: {
+    minHeight: 118,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.md,
+    paddingTop: theme.spacing.md,
+  },
+  podcastIconFrame: {
+    width: 88,
+    height: 74,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  podcastSpeaker: {
+    width: 74,
+    height: 74,
+    borderRadius: 37,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  useTitle: {
+    fontSize: 19,
+    lineHeight: 25,
+    fontWeight: '500',
+    textAlign: 'left',
+  },
+  usePromptBlock: {
+    gap: theme.spacing.xs,
+  },
+  usePrompt: {
+    fontSize: 18,
+    lineHeight: 25,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  useHint: {
+    fontSize: 15,
+    lineHeight: 21,
+    fontWeight: '400',
+    textAlign: 'center',
+  },
+  useInlineFeedback: {
+    minHeight: 46,
+    borderRadius: theme.radius.sm,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+  useInlineFeedbackText: {
     fontSize: 14,
     lineHeight: 20,
     fontWeight: '500',

@@ -1,5 +1,9 @@
 # Fluent Gang
 
+> Legacy prototype.
+>
+> This repository is now treated as a learning/prototyping checkpoint for Fluent Gang. It contains useful experiments around Word Gym, Context, The News, Podcast, and Shadowing, but the next Fluent Gang app should be rebuilt from a cleaner modular foundation. See [docs/new-app-concept.md](docs/new-app-concept.md) for the fresh product brief.
+
 Mobile-first MVP foundation for a contextual vocabulary growth engine.
 
 **App name:** Fluent Gang  
@@ -18,9 +22,9 @@ Mobile-first MVP foundation for a contextual vocabulary growth engine.
 - Lesson mode selection: Standard Context, Funny Story, Dialogue, Super Memory
 - Mock Word Gym session generation with an OpenAI-ready prompt builder
 - Session size selection: Solo 1, Quick 3, Standard 5, Deep 8 words
-- Word Gym hub with Context, Check, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, and Fast Flash
+- Word Gym hub with Context, The News, Podcast, Shadowing, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, and Fast Flash
 - Module runner for short contextual vocabulary practice machines
-- Context Exposure, True/False Check, Mini Usage, natural Speak dialogues, character-led dialogue modules, and quick recognition modes
+- Context Exposure, The News, Podcast, Shadowing, character-led dialogue modules, and quick recognition modes
 - Finish Workout flow with word self-assessment
 - Local progress and focus session tracking with Zustand + AsyncStorage
 - Supabase client setup and initial SQL schema
@@ -147,7 +151,7 @@ Important MVP rule:
 
 The app should not generate long articles or complex stories as the default MVP learning experience. For each selected word, the generator should create short contextual material for the Word Gym modules: simple context moments, true/false checks, mini usage choices, and natural character dialogue where it helps the word land.
 
-Speak is a natural two-character dialogue, not a technical list of example sentences. Not every line has to contain the target word. The target word should stay visually calm inside bubbles; the screen should rely on context, voice, and character flow rather than heavy highlighting.
+Shadowing is a guide-and-you speaking rhythm, not a technical list of example sentences. The user hears or sees a short line, then sees the same line again in a `You` bubble to shadow it. The target word should stay visually calm inside bubbles; the screen should rely on context, voice, and character flow rather than heavy highlighting.
 
 Definitions are optional support, not the core lesson stage:
 

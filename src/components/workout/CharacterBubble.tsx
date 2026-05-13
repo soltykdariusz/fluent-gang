@@ -11,11 +11,20 @@ import { CharacterAvatarPlaceholder } from './CharacterAvatarPlaceholder';
 type Props = {
   line: CharacterDialogueLine;
   highlightTerms?: string[];
+  autoPlay?: boolean;
+  showAudio?: boolean;
   onAudioStart?: () => void;
   onAudioEnd?: () => void;
 };
 
-export function CharacterBubble({ line, highlightTerms = [], onAudioStart, onAudioEnd }: Props) {
+export function CharacterBubble({
+  line,
+  highlightTerms = [],
+  autoPlay = true,
+  showAudio = true,
+  onAudioStart,
+  onAudioEnd,
+}: Props) {
   const appTheme = useTheme();
   const [visibleText, setVisibleText] = useState('');
   const [isReplayActive, setIsReplayActive] = useState(false);
@@ -29,14 +38,18 @@ export function CharacterBubble({ line, highlightTerms = [], onAudioStart, onAud
   }, [onAudioEnd, onAudioStart]);
 
   useEffect(() => {
-    setVisibleText('');
-    onAudioStartRef.current?.();
-    setIsReplayActive(true);
-    void playSentenceAudio(text, '', () => {
-      setIsReplayActive(false);
-      onAudioEndRef.current?.();
-    });
+    if (autoPlay && showAudio) {
+      onAudioStartRef.current?.();
+      setIsReplayActive(true);
+      void playSentenceAudio(text, '', () => {
+        setIsReplayActive(false);
+        onAudioEndRef.current?.();
+      });
+    }
+  }, [autoPlay, showAudio, text]);
 
+  useEffect(() => {
+    setVisibleText('');
     let index = 0;
     const intervalMs = getDialogueTypewriterInterval(text);
     const intervalId = setInterval(() => {
@@ -61,27 +74,29 @@ export function CharacterBubble({ line, highlightTerms = [], onAudioStart, onAud
           ]}
         />
         <View style={styles.sentenceRow}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Play ${text}`}
-            onPress={() => {
-              if (isReplayActive) {
-                stopSentenceAudio();
-                setIsReplayActive(false);
-                return;
-              }
+          {showAudio ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Play ${text}`}
+              onPress={() => {
+                if (isReplayActive) {
+                  stopSentenceAudio();
+                  setIsReplayActive(false);
+                  return;
+                }
 
-              setIsReplayActive(true);
-              void playSentenceAudio(text, '', () => setIsReplayActive(false));
-            }}
-            style={({ pressed }) => [styles.audioButton, pressed ? styles.pressed : null]}
-          >
-            <Volume2
-              size={18}
-              color={isReplayActive ? appTheme.colors.accent : appTheme.colors.muted}
-              strokeWidth={2.4}
-            />
-          </Pressable>
+                setIsReplayActive(true);
+                void playSentenceAudio(text, '', () => setIsReplayActive(false));
+              }}
+              style={({ pressed }) => [styles.audioButton, pressed ? styles.pressed : null]}
+            >
+              <Volume2
+                size={18}
+                color={isReplayActive ? appTheme.colors.accent : appTheme.colors.muted}
+                strokeWidth={2.4}
+              />
+            </Pressable>
+          ) : null}
           <View style={styles.textLayer}>
             <HighlightedText
               text={text}

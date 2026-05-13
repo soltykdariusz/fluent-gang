@@ -122,30 +122,49 @@ The News uses the same reveal rhythm as Context: compact top progress, no Word G
 
 The title should reveal like dialogue text from the left, with the full title visible first in readable gray and a plain speaker icon with no circular button. The article text should also type in like dialogue text, but without dialogue bubbles. Put the article in one light gray-bordered text box. The story is split into two parts, but both parts live in that same article box; each visible part has its own replay speaker icon on the left and text starting to the right of it. Show each part first in readable gray, then reveal the darker generated text over it. Part audio starts together with the darker text reveal, and the reveal pace should roughly match the reading speed. Speaker icons turn blue while their audio is playing and can be tapped again to stop playback. `Next` stays disabled until the automatic reading and the text reveal have finished. Do not show a repeated label such as `Mini report`. Like Context, the screen starts near the top and then gently scrolls upward as new elements appear. The OK and not-OK answer buttons start with identical neutral styling. A wrong choice only becomes disabled and gray, and the user keeps trying. A correct choice shows the same shared fixed bottom `Excellent!` panel component as Context, with both `Next story` and `Back to gym` available. Shared components should be preferred for repeated patterns such as the success panel and calm answer choices.
 
-### Use
+### Podcast
 
-Mini usage without writing.
+Podcast replaces the old Use presentation for this module slot.
 
-Examples:
+Podcast should not look like Context or The News. It starts with the shared top chrome only, then a podcaster icon and a large speaker button. Do not show `Word Gym`, the target word pill, `Use`, or `Set 1/3` in the module body.
 
-```text
-He was ______ to speak.
-[ reluctant ] [ excited ] [ proud ]
-```
+The user hears a short hidden podcast-style intro/story. The transcript is not visible. After the audio finishes, the task appears:
 
 ```text
-Which is correct?
-A) reluctant to go
-B) reluctant go
+Select 3 words you heard.
+Put them in the right order.
 ```
 
-### Speak
+The user selects three word chips and orders them. Selected chips and available chips should keep the same calm visual language, not suddenly switch to a different color system. When the user taps a correct chip, it moves to the answer area and its original position becomes an invisible empty slot without a border. When the user taps a wrong chip, it stays in the available list, becomes disabled, and turns gray immediately. If the user selected the correct words in the wrong order, tapping `Check` should gently animate them into the correct order so the pattern becomes visible, gray out the `Check` button, and show the shared fixed-bottom `Almost excellent!` panel. Fully correct attempts use the shared fixed-bottom `Excellent!` success panel with `Back to gym`.
 
-Speak is a natural conversation between two characters.
+Rules:
 
-The dialogue appears line by line. Previous bubbles stay on screen. Each new line is read aloud automatically, and the user can tap a neutral speaker icon to replay it.
+- no keyboard typing
+- no drag and drop in MVP
+- tap a word to select it
+- tap a selected word to remove it
+- wrong words gray out instead of disappearing
+- wrong order self-corrects into the target pattern after `Check`
+- after `Check`, the check button becomes inactive/gray
+- the podcast story is audio-first and hidden
+- the interaction appears only after audio finishes
+- each Word Gym machine should be allowed to have its own logic, not the same visible template
 
-Not every line has to contain the target word. The goal is a simple, believable conversation where the word becomes understandable through context.
+Podcast should reuse shared exercise chrome, buttons, success panel, and reusable selection/chip UI.
+
+### Shadowing
+
+Shadowing replaces the old Speak presentation.
+
+The module uses the shared compact exercise top bar with progress and X. Do not show the old `Word Gym` header, target-word pill, `Speak`, or `Set` label inside the body.
+
+Each word should have three short shadowing scenes in mock JSON while the database is not ready. Each scene has 4-6 spoken lines and a place title such as `At the dentist`, `At the bar`, or `In the shop`. Under the top bar, show a compact rounded square with all people involved in the shadowing dialogue plus `You`. Later, if the user has a profile photo/avatar, `You` can be replaced by that asset.
+
+The active scene title sits centered under the character square, with a small speaker icon like Context and The News. When a new scene starts, the title is read first, then the first speaker line starts automatically. This title pattern is a candidate for a shared module title component.
+
+Each rep has one simple step: the guide character says the line with audio and a replay speaker. When the audio finishes, the active speaker bubble gets a subtle pulsing `repeat after me` cue. There is no separate duplicated `You` text step.
+
+The user does not need pronunciation scoring in MVP. The important action is repeating the sentence out loud or quietly, then tapping `I repeated it`. Speaker lines stay stacked one under another as the dialogue grows. Only the temporary repeat cue disappears when the next speaker line appears. The text should reveal with the same calm gray-to-ink rhythm used in Context and The News. At the end, use the shared fixed-bottom success panel with a continuation action and `Back to gym`.
 
 ### Argue
 

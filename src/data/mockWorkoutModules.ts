@@ -3,6 +3,7 @@ import { WorkoutModule } from '../types/navigation';
 import { CharacterDialogueLine, WorkoutModuleData, WorkoutRound } from '../types/workout';
 import contextScenariosJson from './contextScenarios.json';
 import mockNewsRoundsJson from './mockNewsRounds.json';
+import mockShadowingScenesJson from './mockShadowingScenes.json';
 import mockSpeakDialogues from './mockSpeakDialogues.json';
 
 const wordId = 'reluctant';
@@ -37,8 +38,15 @@ type NewsRound = {
   feedbackIncorrect: string;
 };
 
+type ShadowingScene = {
+  id: string;
+  title: string;
+  lines: CharacterDialogueLine[];
+};
+
 const contextScenarios = contextScenariosJson as Record<string, ContextScenario[]>;
 const mockNewsRounds = mockNewsRoundsJson as Record<string, NewsRound[]>;
+const mockShadowingScenes = mockShadowingScenesJson as Record<string, ShadowingScene[]>;
 const contextSentences = contextScenarios[targetWord].map(
   (scenario) => scenario.lines.at(-1)?.text ?? 'He was reluctant to speak.',
 );
@@ -92,8 +100,8 @@ export function getModuleTitle(type: WorkoutModule) {
   const titles: Record<WorkoutModule, string> = {
     context: 'Context',
     the_news: 'The News',
-    use: 'Use',
-    speak: 'Speak',
+    use: 'Podcast',
+    speak: 'Shadowing',
     argue: 'Argue',
     ask: 'Ask',
     super_memo: 'Super Memo',
@@ -110,8 +118,8 @@ export function getModuleSubtitle(type: WorkoutModule) {
   const subtitles: Record<WorkoutModule, string> = {
     context: 'Meet the word in simple situations.',
     the_news: 'Read a tiny story and catch the meaning.',
-    use: 'Choose the natural pattern.',
-    speak: 'Shadow the word out loud.',
+    use: 'Hear a tiny podcast and catch key words.',
+    speak: 'Hear it, then shadow it.',
     argue: 'Watch characters disagree about the situation.',
     ask: 'Hear the word inside short questions.',
     super_memo: 'Build a vivid memory hook.',
@@ -128,7 +136,7 @@ export function getModuleIconName(type: WorkoutModule) {
   const icons: Record<WorkoutModule, string> = {
     context: 'book',
     the_news: 'newspaper',
-    use: 'message',
+    use: 'podcast',
     speak: 'volume',
     argue: 'swords',
     ask: 'circle-help',
@@ -227,54 +235,93 @@ function createTheNewsRoundsForWord(currentWordId: string, currentTargetWord: st
 function createUseRounds() {
   return [
     createRound('use', 0, {
-      prompt: 'He was ______ to speak.',
-      content: 'Choose the word that fits.',
-      choices: [
+      useRoundType: 'podcast_words',
+      prompt: 'Select 3 words you heard.',
+      content: 'Welcome to my podcast. Today my guest is Ray. Ray says Tom was reluctant to speak before the meeting.',
+      chunks: [
+        { id: 'tom', text: 'Tom' },
         { id: 'reluctant', text: 'reluctant' },
-        { id: 'excited', text: 'excited' },
+        { id: 'speak', text: 'speak' },
         { id: 'proud', text: 'proud' },
+        { id: 'kitchen', text: 'kitchen' },
+        { id: 'fast', text: 'fast' },
       ],
-      correctChoiceId: 'reluctant',
-      feedbackCorrect: 'Correct. He was reluctant to speak.',
-      feedbackIncorrect: 'Almost. The scene needs reluctant.',
+      correctOrder: ['tom', 'reluctant', 'speak'],
+      correctSentence: 'Tom reluctant speak',
+      feedbackCorrect: 'Nice. You caught the key words.',
+      feedbackIncorrect: 'Almost. Listen for Tom, reluctant, and speak.',
     }),
     createRound('use', 1, {
-      prompt: 'Which is correct?',
-      content: 'Choose the natural pattern.',
-      choices: [
-        { id: 'to-go', text: 'reluctant to go' },
-        { id: 'go', text: 'reluctant go' },
+      useRoundType: 'podcast_words',
+      prompt: 'Select 3 words you heard.',
+      content: 'This is the Fluent Gang podcast. Mia is with us today. She says Sara was reluctant to answer in class.',
+      chunks: [
+        { id: 'sara', text: 'Sara' },
+        { id: 'reluctant', text: 'reluctant' },
+        { id: 'answer', text: 'answer' },
+        { id: 'repair', text: 'repair' },
+        { id: 'happy', text: 'happy' },
+        { id: 'price', text: 'price' },
       ],
-      correctChoiceId: 'to-go',
-      feedbackCorrect: 'Correct. We say "reluctant to go".',
-      feedbackIncorrect: 'Almost. The natural pattern is "reluctant to go".',
+      correctOrder: ['sara', 'reluctant', 'answer'],
+      correctSentence: 'Sara reluctant answer',
+      feedbackCorrect: 'Nice. You heard the important words.',
+      feedbackIncorrect: 'Almost. Listen for Sara, reluctant, and answer.',
     }),
     createRound('use', 2, {
-      prompt: 'She was ______ to answer.',
-      content: 'Choose the word that fits.',
-      choices: [
+      useRoundType: 'podcast_words',
+      prompt: 'Select 3 words you heard.',
+      content: 'Welcome back to the podcast. Ray tells us Mike was reluctant to join the match because his leg hurt.',
+      chunks: [
+        { id: 'mike', text: 'Mike' },
         { id: 'reluctant', text: 'reluctant' },
-        { id: 'happy', text: 'happy' },
-        { id: 'loud', text: 'loud' },
+        { id: 'join', text: 'join' },
+        { id: 'loudly', text: 'loudly' },
+        { id: 'doctor', text: 'doctor' },
+        { id: 'forgot', text: 'forgot' },
       ],
-      correctChoiceId: 'reluctant',
-      feedbackCorrect: 'Correct. One more connection made.',
-      feedbackIncorrect: 'Almost. Reluctant fits the hesitation.',
+      correctOrder: ['mike', 'reluctant', 'join'],
+      correctSentence: 'Mike reluctant join',
+      feedbackCorrect: 'Nice. You caught the podcast words.',
+      feedbackIncorrect: 'Almost. Listen for Mike, reluctant, and join.',
     }),
   ];
 }
 
 function createSpeakRounds() {
-  const speakDialogueLines = getSpeakDialogueLines(targetWord);
+  return createShadowingRoundsForWord(wordId, targetWord);
+}
 
-  return speakDialogueLines.map((dialogueLine, index) =>
-    createRound('speak', index, {
+function createShadowingRoundsForWord(currentWordId: string, currentTargetWord: string): WorkoutRound[] {
+  const scenes = mockShadowingScenes[currentTargetWord.toLowerCase()] ?? createGenericShadowingScenes(currentTargetWord);
+
+  return scenes.flatMap((scene, sceneIndex) =>
+    scene.lines.map((dialogueLine, lineIndex) => ({
+      id: `speak-${scene.id}-${lineIndex + 1}`,
+      moduleType: 'speak' as const,
+      wordId: currentWordId,
+      roundIndex: sceneIndex * 10 + lineIndex,
+      targetWord: currentTargetWord,
       prompt: 'Repeat out loud.',
       content: dialogueLine.text,
+      sceneTitle: scene.title,
+      sceneType: scene.id,
       dialogueLines: [dialogueLine],
       feedbackCorrect: 'Nice shadowing rep.',
-    }),
+    })),
   );
+}
+
+function createGenericShadowingScenes(currentTargetWord: string): ShadowingScene[] {
+  const lines = getSpeakDialogueLines(currentTargetWord);
+
+  return [
+    {
+      id: 'everyday',
+      title: 'In a small talk',
+      lines,
+    },
+  ];
 }
 
 function createArgueRounds() {
@@ -603,21 +650,8 @@ function createGenericRounds(
     lesson.words[0]?.simpleDefinition ??
     lesson.words[0]?.definition ??
     'the idea in this situation';
-  const speakDialogueLines = getSpeakDialogueLines(genericTargetWord);
-
   if (type === 'speak') {
-    return speakDialogueLines.map((dialogueLine, index) => ({
-      id: `speak-${index + 1}`,
-      moduleType: type,
-      wordId: genericWordId,
-      roundIndex: index,
-      prompt: 'Repeat out loud.',
-      content: dialogueLine.text,
-      dialogueLines: [dialogueLine],
-      feedbackCorrect: 'Nice shadowing rep.',
-      feedbackIncorrect: 'Try the line one more time.',
-      targetWord: genericTargetWord,
-    }));
+    return createShadowingRoundsForWord(genericWordId, genericTargetWord);
   }
 
   if (type === 'context') {

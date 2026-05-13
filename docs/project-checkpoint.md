@@ -67,12 +67,13 @@ Fluent Gang to contextual vocabulary growth app. To nie jest grammar course ani 
 
 Aktualny stan:
 - `Read` zostało zmienione na `Context`.
-- Word Gym pokazuje moduły: Context, The News, Use, Speak, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, Fast Flash.
+- Word Gym pokazuje moduły: Context, The News, Podcast, Shadowing, Argue, Ask, Super Memo, Feel, Same / Different, Best Sentence, Fast Flash.
 - Dodany jest model `WorkoutModule`, `WorkoutRound`, `CharacterDialogueLine` oraz statusy modułów.
 - Dodany jest `ModuleRunnerScreen`.
-- Dodane komponenty: `DialogueScene`, `CharacterBubble`, `CharacterAvatarPlaceholder`, `ChoiceExercise`, `ModuleProgress`, `FocusTimer`.
-- Speak działa jako naturalny dialog dwóch postaci, z kolejnymi wypowiedziami dodawanymi po kliknięciu.
-- Poprzednie dymki w Speak zostają na ekranie.
+- Dodane komponenty: `DialogueScene`, `CharacterBubble`, `CharacterAvatarPlaceholder`, `ChoiceExercise`, `ChunkArrangeExercise`, `ModuleProgress`, `ExerciseTopBar`, `FocusTimer`.
+- Dawny slot Use został przestawiony prezentacyjnie na Podcast: audio-first, ukryta transkrypcja, po odsłuchu wybór 3 słów usłyszanych w tekście.
+- Dawny Speak został przestawiony prezentacyjnie na Shadowing: scenki z mockowego JSON-a mają tytuł miejsca, postać mówi linię, a potem pojawia się cue `repeat after me`.
+- Poprzednie dymki w Shadowing zostają na ekranie.
 - Dymki są neutralne: jasne/szare, delikatna ramka, bez kolorowego tła.
 - Tekst w dymkach nie jest boldowany.
 - Target word nie jest kolorowany ani boldowany w dymku.

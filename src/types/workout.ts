@@ -17,6 +17,11 @@ export type ChoiceOption = {
   text: string;
 };
 
+export type ChunkOption = {
+  id: string;
+  text: string;
+};
+
 export type NewsAnswer = ChoiceOption;
 
 export type CharacterDialogueLine = {
@@ -37,6 +42,10 @@ export type WorkoutRound = {
   sceneType?: string;
   headline?: string;
   story?: string[];
+  useRoundType?: 'insert_word' | 'arrange_chunks' | 'correct_usage' | 'podcast_words';
+  chunks?: ChunkOption[];
+  correctOrder?: string[];
+  correctSentence?: string;
   choices?: ChoiceOption[];
   correctChoiceId?: string;
   feedbackCorrect?: string;

@@ -7,6 +7,7 @@ type Props = {
   lines: CharacterDialogueLine[];
   visibleCount: number;
   highlightTerms?: string[];
+  autoPlayLatestOnly?: boolean;
   onLineAudioStart?: () => void;
   onLineAudioEnd?: () => void;
 };
@@ -15,6 +16,7 @@ export function DialogueScene({
   lines,
   visibleCount,
   highlightTerms = [],
+  autoPlayLatestOnly = false,
   onLineAudioStart,
   onLineAudioEnd,
 }: Props) {
@@ -27,6 +29,7 @@ export function DialogueScene({
           key={`${line.characterId}-${index}`}
           line={line}
           highlightTerms={highlightTerms}
+          autoPlay={!autoPlayLatestOnly || index === visibleLines.length - 1}
           onAudioStart={index === visibleLines.length - 1 ? onLineAudioStart : undefined}
           onAudioEnd={index === visibleLines.length - 1 ? onLineAudioEnd : undefined}
         />
