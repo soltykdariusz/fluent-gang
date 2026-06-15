@@ -25,7 +25,12 @@ export function AppButton({ title, onPress, variant = 'primary', disabled, icon 
           backgroundColor:
             variant === 'secondary' ? appTheme.colors.primarySoft : appTheme.colors.primary,
         },
-        disabled && styles.disabled,
+        disabled
+          ? {
+              backgroundColor: appTheme.colors.border,
+              borderColor: appTheme.colors.border,
+            }
+          : null,
         pressed && !disabled && styles.pressed,
       ]}
     >
@@ -33,7 +38,13 @@ export function AppButton({ title, onPress, variant = 'primary', disabled, icon 
       <Text
         style={[
           styles.text,
-          { color: variant === 'secondary' ? appTheme.colors.primary : appTheme.colors.surface },
+          {
+            color: disabled
+              ? appTheme.colors.muted
+              : variant === 'secondary'
+                ? appTheme.colors.primary
+                : appTheme.colors.surface,
+          },
         ]}
       >
         {title}
@@ -52,9 +63,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: theme.spacing.sm,
     paddingHorizontal: theme.spacing.md,
-  },
-  disabled: {
-    opacity: 0.45,
   },
   pressed: {
     opacity: 0.8,

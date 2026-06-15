@@ -5,9 +5,9 @@ export const lessonModes: Array<{
   title: string;
   description: string;
 }> = [
-  { mode: 'news', title: 'News', description: 'A short article-style text with clear context.' },
-  { mode: 'sport', title: 'Sport', description: 'Vocabulary in a dynamic sports story.' },
-  { mode: 'lifestyle', title: 'Lifestyle', description: 'General daily-life context and practical examples.' },
+  { mode: 'standardContext', title: 'Standard Context', description: 'A clear short vocabulary scene using all selected words naturally.' },
+  { mode: 'funnyStory', title: 'Funny Story', description: 'A light, entertaining story that makes the words easier to remember.' },
+  { mode: 'dialogue', title: 'Dialogue', description: 'A short natural conversation using all selected words.' },
   {
     mode: 'superMemory',
     title: 'Super Memory',

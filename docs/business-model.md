@@ -8,8 +8,8 @@ Fluent Gang should support consumer and company learning from the beginning, eve
 
 - Access to the core vocabulary and lesson flow.
 - A 15-second ad appears before launching a generated lesson.
-- During MVP testing, the ad gate is mocked as 2 seconds so iteration stays fast.
-- Ads should not interrupt reading, quizzes, shadowing, focus sessions, or reviews.
+- During MVP testing, the ad gate is mocked as 0.5 seconds so iteration stays fast.
+- Ads should not interrupt Word Gym modules, focus sessions, or reviews.
 - The ad experience should feel controlled and predictable, not aggressive.
 
 ### Paid

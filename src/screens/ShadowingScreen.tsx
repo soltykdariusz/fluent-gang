@@ -1,120 +1,316 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { CheckCircle2, Gauge, Subtitles } from 'lucide-react-native';
-import { useState } from 'react';
-import { StyleSheet, Switch, Text, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import { ChevronRight, Volume2 } from 'lucide-react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppButton } from '../components/AppButton';
 import { HighlightedText } from '../components/HighlightedText';
+import { Mascot } from '../components/Mascot';
 import { Screen } from '../components/Screen';
-import { StepHeader } from '../components/StepHeader';
 import { saveLessonResult } from '../services/progressService';
+import { getShadowingPracticeItems } from '../services/shadowingService';
+import { playSentenceAudio, playWordAudio } from '../services/soundService';
 import { useAppStore } from '../store/useAppStore';
+import { useTheme } from '../theme/ThemeProvider';
 import { theme } from '../theme/theme';
 import { RootStackParamList } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Shadowing'>;
+type ShadowingPhase = 'word' | 'sentence';
 
 export function ShadowingScreen({ navigation, route }: Props) {
-  const { t } = useTranslation();
-  const { lesson } = route.params;
+  const appTheme = useTheme();
+  const { lesson, contextSummary, definitionSummary, completedModules = [] } = route.params;
   const addLessonResult = useAppStore((state) => state.addLessonResult);
-  const [showSubtitles, setShowSubtitles] = useState(true);
-  const [speed, setSpeed] = useState(1);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [phase, setPhase] = useState<ShadowingPhase>('word');
+  const [sentenceIndex, setSentenceIndex] = useState(0);
+  const practiceItems = useMemo(() => getShadowingPracticeItems(lesson), [lesson]);
+  const currentItem = practiceItems[currentIndex];
+  const currentSentence = currentItem?.sentences[sentenceIndex];
+  const visibleSentences = currentItem?.sentences.slice(0, sentenceIndex + 1) ?? [];
+  const isLastWord = currentIndex === practiceItems.length - 1;
+  const isLastSentence = sentenceIndex === (currentItem?.sentences.length ?? 1) - 1;
+
+  useEffect(() => {
+    if (!currentItem || phase !== 'word') {
+      return;
+    }
+
+    void playWordAudio(currentItem);
+  }, [currentItem, phase]);
+
+  useEffect(() => {
+    if (!currentItem || !currentSentence || phase !== 'sentence') {
+      return;
+    }
+
+    void playSentenceAudio(currentSentence, currentItem.targetWord);
+  }, [currentItem, currentSentence, phase]);
 
   const finishLesson = async () => {
     const result = {
       lessonId: lesson.id,
       completedAt: new Date().toISOString(),
-      contextScore: lesson.contextQuiz.length,
-      definitionScore: lesson.definitionQuiz.length,
+      contextScore: contextSummary?.score ?? 0,
+      definitionScore: definitionSummary?.score ?? 0,
       practicedWordIds: lesson.words.map((word) => word.id),
       durationSeconds: 600,
     };
     addLessonResult(result);
     await saveLessonResult(result);
-    navigation.navigate('Home');
+    navigation.replace('WordPreview', {
+      lesson,
+      completedModules: Array.from(new Set([...completedModules, 'speak'])),
+    });
+  };
+
+  const goNext = () => {
+    if (!currentItem) {
+      void finishLesson();
+      return;
+    }
+
+    if (phase === 'word') {
+      setSentenceIndex(0);
+      setPhase('sentence');
+      return;
+    }
+
+    if (!isLastSentence) {
+      setSentenceIndex((value) => value + 1);
+      return;
+    }
+
+    if (!isLastWord) {
+      setCurrentIndex((value) => value + 1);
+      setSentenceIndex(0);
+      setPhase('word');
+      return;
+    }
+
+    void finishLesson();
   };
 
   return (
-    <Screen>
-      <StepHeader title={t('shadowing')} subtitle="Prepared for playback speed, subtitles, recording, and pronunciation feedback." />
-      <View style={styles.controls}>
-        <View style={styles.labelRow}>
-          <Subtitles size={18} color={theme.colors.primary} strokeWidth={2.2} />
-          <Text style={styles.label}>Subtitles</Text>
+    <Screen scroll={false}>
+      <View style={styles.main}>
+        <View style={styles.mascotWrap}>
+          <Mascot state="idle" size={124} />
         </View>
-        <Switch value={showSubtitles} onValueChange={setShowSubtitles} />
-      </View>
-      <View style={styles.speedRow}>
-        {[0.75, 1, 1.25].map((value) => (
-          <AppButton
-            key={value}
-            title={`${value}x`}
-            onPress={() => setSpeed(value)}
-            variant={speed === value ? 'primary' : 'secondary'}
-            icon={<Gauge size={16} color={speed === value ? theme.colors.surface : theme.colors.primary} strokeWidth={2.2} />}
-          />
-        ))}
-      </View>
-      {showSubtitles ? (
-        <View style={styles.scriptPanel}>
-          <HighlightedText
-            text={lesson.shadowingText}
-            terms={lesson.words.map((word) => word.text)}
-            style={styles.script}
-            highlightStyle={styles.highlight}
-          />
+
+        <View style={styles.wordWrap}>
+          <View style={styles.wordRow}>
+            <Text style={[styles.word, { color: appTheme.colors.text }]}>{currentItem?.targetWord ?? 'Ready'}</Text>
+            {currentItem && phase === 'word' ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`Play ${currentItem.targetWord}`}
+                onPress={() => {
+                  void playWordAudio(currentItem);
+                }}
+                style={({ pressed }) => [
+                  styles.audioButton,
+                  { backgroundColor: appTheme.colors.primarySoft },
+                  pressed ? styles.pressed : null,
+                ]}
+              >
+                <Volume2 size={30} color={appTheme.colors.primary} strokeWidth={2.5} />
+              </Pressable>
+            ) : null}
+          </View>
         </View>
-      ) : null}
-      <AppButton
-        title={t('saveProgress')}
-        onPress={finishLesson}
-        icon={<CheckCircle2 size={18} color={theme.colors.surface} strokeWidth={2.2} />}
-      />
+
+        {phase === 'sentence' && currentItem && currentSentence ? (
+          <View style={styles.practiceWrap}>
+            <Text style={[styles.repeatHint, { color: appTheme.colors.muted }]}>Repeat out loud</Text>
+            {visibleSentences.map((sentence, index) => (
+              <SentencePrompt
+                key={`${currentItem.wordId}-${index}-${sentence}`}
+                sentence={sentence}
+                targetWord={currentItem.targetWord}
+              />
+            ))}
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.continueWrap}>
+        <AppButton
+          title="Continue"
+          onPress={goNext}
+          icon={<ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />}
+        />
+      </View>
     </Screen>
   );
 }
 
+function SentencePrompt({ sentence, targetWord }: { sentence: string; targetWord: string }) {
+  const appTheme = useTheme();
+  const reveal = useRef(new Animated.Value(0)).current;
+  const [visibleText, setVisibleText] = useState('');
+
+  useEffect(() => {
+    reveal.setValue(0);
+    Animated.timing(reveal, {
+      toValue: 1,
+      duration: 260,
+      useNativeDriver: true,
+    }).start();
+  }, [reveal, sentence]);
+
+  useEffect(() => {
+    setVisibleText('');
+    let index = 0;
+    const intervalId = setInterval(() => {
+      index += 1;
+      setVisibleText(sentence.slice(0, index));
+      if (index >= sentence.length) {
+        clearInterval(intervalId);
+      }
+    }, 22);
+
+    return () => clearInterval(intervalId);
+  }, [sentence]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.promptRow,
+        {
+          opacity: reveal,
+          transform: [
+            {
+              translateY: reveal.interpolate({
+                inputRange: [0, 1],
+                outputRange: [10, 0],
+              }),
+            },
+          ],
+        },
+      ]}
+    >
+      <Mascot state="encourage" size={44} />
+      <View style={[styles.speechWrap, { backgroundColor: theme.colors.surface, borderColor: appTheme.colors.border }]}>
+        <View style={[styles.speechTail, { backgroundColor: theme.colors.surface, borderColor: appTheme.colors.border }]} />
+        <View style={styles.sentenceRow}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Play sentence ${sentence}`}
+            onPress={() => {
+              void playSentenceAudio(sentence, targetWord);
+            }}
+            style={({ pressed }) => [styles.sentenceAudioButton, pressed ? styles.pressed : null]}
+          >
+            <Volume2 size={18} color={appTheme.colors.primary} strokeWidth={2.4} />
+          </Pressable>
+          <HighlightedText
+            text={visibleText}
+            terms={[targetWord]}
+            style={[styles.sentence, { color: appTheme.colors.text }]}
+            highlightStyle={[styles.sentenceHighlight, { color: appTheme.colors.primary }]}
+          />
+        </View>
+      </View>
+    </Animated.View>
+  );
+}
+
 const styles = StyleSheet.create({
-  controls: {
-    minHeight: 56,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  main: {
+    flex: 1,
     alignItems: 'center',
-    borderRadius: theme.radius.sm,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
-    paddingHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.md,
   },
-  label: {
-    color: theme.colors.text,
-    fontSize: 16,
-    fontWeight: '700',
+  mascotWrap: {
+    alignItems: 'center',
+    minHeight: 136,
   },
-  labelRow: {
+  wordWrap: {
+    alignItems: 'center',
+    marginTop: theme.spacing.sm,
+  },
+  wordRow: {
+    minHeight: 76,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.md,
+  },
+  word: {
+    fontSize: 42,
+    lineHeight: 50,
+    fontWeight: '400',
+  },
+  audioButton: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  pressed: {
+    opacity: 0.78,
+  },
+  practiceWrap: {
+    width: '100%',
+    marginTop: theme.spacing.lg,
+    gap: theme.spacing.xs,
+  },
+  repeatHint: {
+    paddingLeft: 54,
+    fontSize: 14,
+    lineHeight: 19,
+    fontWeight: '600',
+  },
+  promptRow: {
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.spacing.sm,
   },
-  speedRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
-  },
-  script: {
-    color: theme.colors.text,
-    fontSize: 20,
-    lineHeight: 32,
-  },
-  scriptPanel: {
-    borderRadius: theme.radius.sm,
+  speechWrap: {
+    alignSelf: 'flex-start',
+    maxWidth: '78%',
+    minHeight: 54,
     borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
-    padding: theme.spacing.md,
+    borderRadius: theme.radius.sm,
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.sm,
+    paddingVertical: theme.spacing.xs,
   },
-  highlight: {
-    color: theme.colors.primary,
-    fontWeight: '900',
+  sentenceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
+  sentenceAudioButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  speechTail: {
+    position: 'absolute',
+    left: -6,
+    top: 21,
+    width: 12,
+    height: 12,
+    borderLeftWidth: 1,
+    borderBottomWidth: 1,
+    transform: [{ rotate: '45deg' }],
+  },
+  sentence: {
+    fontSize: 17,
+    lineHeight: 24,
+    fontWeight: '400',
+  },
+  sentenceHighlight: {
+    fontWeight: '400',
+  },
+  continueWrap: {
+    marginTop: 'auto',
+    marginBottom: -72,
   },
 });

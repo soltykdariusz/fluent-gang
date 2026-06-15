@@ -1,0 +1,223 @@
+{
+  "reluctant": [
+    {
+      "id": "reluctant-doctor-1",
+      "placeTitle": "At the doctor",
+      "scene": "doctor",
+      "lines": [
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "thinking",
+          "text": "Tom keeps stepping back."
+        },
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "confused",
+          "text": "He looks nervous."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "talking",
+          "text": "Yeah... he is reluctant to speak."
+        }
+      ],
+      "question": "What does reluctant mean here?",
+      "choices": [
+        {
+          "id": "not-want",
+          "text": "He does not really want to speak"
+        },
+        {
+          "id": "loud",
+          "text": "He wants to speak loudly"
+        },
+        {
+          "id": "forgot",
+          "text": "He forgot the words"
+        }
+      ],
+      "correctChoiceId": "not-want",
+      "feedbackCorrect": "Yes. Tom can speak, but he does not really want to.",
+      "feedbackIncorrect": "Almost. Reluctant means Tom is holding back from speaking."
+    },
+    {
+      "id": "reluctant-mechanic-1",
+      "placeTitle": "At the mechanic",
+      "scene": "mechanic",
+      "lines": [
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "thinking",
+          "text": "The car needs a big repair."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "talking",
+          "text": "Tom keeps looking at the price."
+        },
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "confused",
+          "text": "So he is reluctant to say yes."
+        }
+      ],
+      "question": "What does reluctant mean here?",
+      "choices": [
+        {
+          "id": "not-ready",
+          "text": "He is not ready to agree"
+        },
+        {
+          "id": "repair-fast",
+          "text": "He can repair the car fast"
+        },
+        {
+          "id": "likes-price",
+          "text": "He likes the price"
+        }
+      ],
+      "correctChoiceId": "not-ready",
+      "feedbackCorrect": "Right. He is unsure and does not really want to agree.",
+      "feedbackIncorrect": "Almost. The price makes him hold back."
+    },
+    {
+      "id": "reluctant-kitchen-1",
+      "placeTitle": "In the kitchen",
+      "scene": "kitchen",
+      "lines": [
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "talking",
+          "text": "Everyone is trying the spicy soup."
+        },
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "surprised",
+          "text": "Tom is still holding his spoon."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "happy",
+          "text": "He is reluctant to taste it."
+        }
+      ],
+      "question": "What does reluctant mean here?",
+      "choices": [
+        {
+          "id": "does-not-want",
+          "text": "He does not really want to taste it"
+        },
+        {
+          "id": "cooked-it",
+          "text": "He cooked the soup"
+        },
+        {
+          "id": "very-hungry",
+          "text": "He is very hungry"
+        }
+      ],
+      "correctChoiceId": "does-not-want",
+      "feedbackCorrect": "Exactly. He is holding back.",
+      "feedbackIncorrect": "Almost. Reluctant points to not really wanting to do it."
+    }
+  ],
+  "cautious": [
+    {
+      "id": "cautious-street-1",
+      "placeTitle": "On the street",
+      "scene": "street",
+      "lines": [
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "surprised",
+          "text": "The road is wet."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "thinking",
+          "text": "Tom walks slowly and checks every car."
+        },
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "confident",
+          "text": "He is cautious today."
+        }
+      ],
+      "question": "What does cautious mean here?",
+      "choices": [
+        {
+          "id": "careful",
+          "text": "He is careful because there may be danger"
+        },
+        {
+          "id": "angry",
+          "text": "He is angry at the cars"
+        },
+        {
+          "id": "fast",
+          "text": "He wants to move fast"
+        }
+      ],
+      "correctChoiceId": "careful",
+      "feedbackCorrect": "Yes. Cautious means careful in a risky moment.",
+      "feedbackIncorrect": "Almost. Cautious means careful, not fast or angry."
+    }
+  ],
+  "eager": [
+    {
+      "id": "eager-class-1",
+      "placeTitle": "In class",
+      "scene": "class",
+      "lines": [
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "talking",
+          "text": "The teacher asks for a volunteer."
+        },
+        {
+          "characterId": "ray",
+          "characterName": "Ray",
+          "emotion": "happy",
+          "text": "Tom raises his hand first."
+        },
+        {
+          "characterId": "mia",
+          "characterName": "Mia",
+          "emotion": "confident",
+          "text": "He is eager to try."
+        }
+      ],
+      "question": "What does eager mean here?",
+      "choices": [
+        {
+          "id": "wants",
+          "text": "He really wants to try"
+        },
+        {
+          "id": "afraid",
+          "text": "He is afraid to try"
+        },
+        {
+          "id": "forgot",
+          "text": "He forgot the task"
+        }
+      ],
+      "correctChoiceId": "wants",
+      "feedbackCorrect": "Right. Eager means he really wants to do it.",
+      "feedbackIncorrect": "Almost. Eager is the opposite of holding back."
+    }
+  ]
+}

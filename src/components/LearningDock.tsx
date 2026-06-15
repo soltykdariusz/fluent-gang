@@ -1,147 +1,111 @@
-import { useEffect, useMemo, useRef } from 'react';
-import { Home, Pause, Play } from 'lucide-react-native';
-import { Animated, DimensionValue, Pressable, StyleSheet, Text, View } from 'react-native';
-import { levelWordTargets, nextLevelByLevel } from '../constants/progress';
-import { navigateHome, navigateLearningGuide } from '../navigation/rootNavigation';
+import { Dumbbell, Ellipsis, Home, Pause, Play, RotateCcw } from 'lucide-react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import Svg, { Circle } from 'react-native-svg';
+import { navigateHome, navigateReview, navigateWorkout } from '../navigation/rootNavigation';
+import { lessonRoutes, onboardingRoutes } from '../navigation/routeGroups';
 import { useAppStore } from '../store/useAppStore';
-import { theme } from '../theme/theme';
 import { useTheme } from '../theme/ThemeProvider';
+import { theme } from '../theme/theme';
+import { RootStackParamList } from '../types/navigation';
 
-function formatSeconds(seconds: number) {
-  const minutes = Math.floor(seconds / 60);
-  const rest = seconds % 60;
-  return `${minutes}:${String(rest).padStart(2, '0')}`;
-}
+const tabs: Array<{
+  route: keyof RootStackParamList;
+  label: string;
+  icon: typeof Home;
+}> = [
+  { route: 'Home', label: 'Home', icon: Home },
+  { route: 'VocabularySelection', label: 'Workout', icon: Dumbbell },
+  { route: 'Review', label: 'Review', icon: RotateCcw },
+  { route: 'FocusSession', label: '25:00', icon: Play },
+  { route: 'Settings', label: 'More', icon: Ellipsis },
+];
 
-export function LearningDock() {
+type LearningDockProps = {
+  moreOpen: boolean;
+  onToggleMore: () => void;
+  onCloseMore: () => void;
+};
+
+export function LearningDock({ moreOpen, onToggleMore, onCloseMore }: LearningDockProps) {
   const appTheme = useTheme();
-  const {
-    level,
-    completedLessons,
-    focusTargetSeconds,
-    focusRemainingSeconds,
-    focusRunning,
-    celebrationPulse,
-    tickFocusSession,
-    startFocusSession,
-    pauseFocusSession,
-  } = useAppStore();
-  const scale = useRef(new Animated.Value(1)).current;
-  const glow = useRef(new Animated.Value(0)).current;
+  const currentRouteName = useAppStore((state) => state.currentRouteName) as keyof RootStackParamList | undefined;
+  const focusRemainingSeconds = useAppStore((state) => state.focusRemainingSeconds);
+  const focusTargetSeconds = useAppStore((state) => state.focusTargetSeconds);
+  const focusRunning = useAppStore((state) => state.focusRunning);
+  const startFocusSession = useAppStore((state) => state.startFocusSession);
+  const pauseFocusSession = useAppStore((state) => state.pauseFocusSession);
+  const resetFocusSession = useAppStore((state) => state.resetFocusSession);
 
-  useEffect(() => {
-    if (!focusRunning) return undefined;
-    const interval = setInterval(tickFocusSession, 1000);
-    return () => clearInterval(interval);
-  }, [focusRunning, tickFocusSession]);
-
-  useEffect(() => {
-    if (celebrationPulse === 0) return;
-    Animated.parallel([
-      Animated.sequence([
-        Animated.timing(scale, { toValue: 1.18, duration: 220, useNativeDriver: true }),
-        Animated.spring(scale, { toValue: 1, friction: 4, tension: 80, useNativeDriver: true }),
-      ]),
-      Animated.sequence([
-        Animated.timing(glow, { toValue: 1, duration: 180, useNativeDriver: false }),
-        Animated.timing(glow, { toValue: 0, duration: 900, useNativeDriver: false }),
-      ]),
-    ]).start();
-  }, [celebrationPulse, glow, scale]);
-
-  const learnedWordCount = useMemo(() => {
-    return new Set(completedLessons.flatMap((lesson) => lesson.practicedWordIds)).size;
-  }, [completedLessons]);
-
-  const target = levelWordTargets[level];
-  const nextLevel = nextLevelByLevel[level];
-  const progress = Math.min(1, learnedWordCount / target);
-  const progressPercent = Math.round(progress * 100);
-  const elapsedSeconds = focusTargetSeconds - focusRemainingSeconds;
-  const elapsedPercent = Math.min(1, elapsedSeconds / focusTargetSeconds);
-  const ringFillHeight: DimensionValue = `${Math.max(8, progress * 100)}%`;
-  const glowColor = glow.interpolate({
-    inputRange: [0, 1],
-    outputRange: [appTheme.colors.surface, appTheme.mode === 'dark' ? '#26361F' : '#FFF1C7'],
-  });
+  if (!currentRouteName || onboardingRoutes.includes(currentRouteName) || lessonRoutes.includes(currentRouteName)) {
+    return null;
+  }
 
   return (
-    <View style={styles.wrap} pointerEvents="box-none">
-      <Animated.View
-        style={[
-          styles.dock,
-          {
-            backgroundColor: glowColor,
-            borderColor: appTheme.colors.border,
-          },
-        ]}
-      >
-        <Pressable
-          accessibilityRole="button"
-          onPress={navigateHome}
-          style={({ pressed }) => [
-            styles.homeButton,
-            {
-              borderColor: appTheme.colors.border,
-              backgroundColor: appTheme.colors.surface,
-            },
-            pressed && styles.pressed,
-          ]}
-        >
-          <Home size={21} color={appTheme.colors.primary} strokeWidth={2.2} />
-        </Pressable>
-
-        <View style={styles.timerArea}>
-          <Pressable
-            accessibilityRole="button"
-            onPress={focusRunning ? pauseFocusSession : startFocusSession}
-            style={styles.timerControl}
-          >
-            <View style={styles.timerLine}>
-              {focusRunning ? (
-                <Pause size={14} color={appTheme.colors.muted} strokeWidth={2.2} />
-              ) : (
-                <Play size={14} color={appTheme.colors.muted} strokeWidth={2.2} />
-              )}
-              <Text style={[styles.timer, { color: appTheme.colors.muted }]}>{formatSeconds(focusRemainingSeconds)}</Text>
-            </View>
-            <View style={[styles.timeTrack, { backgroundColor: appTheme.colors.primarySoft }]}>
-              <View style={[styles.timeFill, { backgroundColor: appTheme.colors.primary, width: `${elapsedPercent * 100}%` }]} />
-            </View>
+    <View style={[styles.wrap, { borderColor: appTheme.colors.border, backgroundColor: appTheme.colors.surface }]}>
+      {tabs.map((tab) => {
+        const isTimer = tab.route === 'FocusSession';
+        const Icon = isTimer ? (focusRunning ? Pause : Play) : tab.icon;
+        const active =
+          tab.route === 'Settings'
+            ? moreOpen || currentRouteName === 'Settings'
+            : isTimer
+              ? focusRunning || currentRouteName === 'FocusSession'
+              : tab.route === currentRouteName || (tab.route === 'VocabularySelection' && currentRouteName === 'LearningGuide');
+        const label = isTimer ? formatFocusTime(focusRemainingSeconds) : tab.label;
+        const handlePress = () => {
+          if (tab.route === 'Settings') {
+            onToggleMore();
+            return;
+          }
+          if (isTimer) {
+            onCloseMore();
+            if (focusRunning) {
+              pauseFocusSession();
+              return;
+            }
+            if (focusRemainingSeconds <= 0) {
+              resetFocusSession();
+              return;
+            }
+            startFocusSession();
+            return;
+          }
+          onCloseMore();
+          if (tab.route === 'Home') navigateHome();
+          if (tab.route === 'VocabularySelection') navigateWorkout();
+          if (tab.route === 'Review') navigateReview();
+        };
+        return (
+          <Pressable key={tab.label} accessibilityRole="button" onPress={handlePress} style={styles.tab}>
+            {isTimer ? (
+              <View style={styles.timerIcon}>
+                <Svg width={34} height={34} viewBox="0 0 34 34" style={styles.timerRing}>
+                  <Circle cx="17" cy="17" r="14" stroke={appTheme.colors.border} strokeWidth="3" fill="none" />
+                  <Circle
+                    cx="17"
+                    cy="17"
+                    r="14"
+                    stroke={active ? appTheme.colors.primary : appTheme.colors.muted}
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 14}`}
+                    strokeDashoffset={`${2 * Math.PI * 14 * (1 - getTimerProgress(focusRemainingSeconds, focusTargetSeconds))}`}
+                    rotation="-90"
+                    origin="17, 17"
+                  />
+                </Svg>
+                <Icon size={15} color={active ? appTheme.colors.primary : appTheme.colors.muted} strokeWidth={2.4} />
+              </View>
+            ) : (
+              <Icon size={21} color={active ? appTheme.colors.primary : appTheme.colors.muted} strokeWidth={2.2} />
+            )}
+            <Text style={[styles.label, { color: active ? appTheme.colors.primary : appTheme.colors.muted }]}>
+              {label}
+            </Text>
           </Pressable>
-          <Pressable
-            accessibilityRole="button"
-            onPress={navigateLearningGuide}
-            style={styles.brandLine}
-          >
-            <View style={[styles.logoMark, { backgroundColor: appTheme.colors.primary }]}>
-              <Text style={[styles.logoText, { color: appTheme.colors.surface }]}>FG</Text>
-            </View>
-            <Text style={[styles.brandText, { color: appTheme.colors.muted }]}>You will be fluent</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.levelArea}>
-          <View
-            style={[
-              styles.ring,
-              {
-                borderColor: appTheme.colors.primary,
-                backgroundColor: appTheme.colors.surface,
-              },
-            ]}
-          >
-            <View style={[styles.ringFill, { backgroundColor: appTheme.colors.primarySoft, height: ringFillHeight }]} />
-            <Text style={[styles.ringText, { color: appTheme.colors.primary }]}>{progressPercent}%</Text>
-          </View>
-          <Text style={[styles.levelText, { color: appTheme.colors.text }]}>
-            {level}-{nextLevel}
-          </Text>
-          <Text style={[styles.wordText, { color: appTheme.colors.muted }]}>
-            {learnedWordCount}/{target}
-          </Text>
-        </View>
-      </Animated.View>
+        );
+      })}
     </View>
   );
 }
@@ -152,116 +116,45 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-  },
-  dock: {
-    minHeight: 96,
+    minHeight: 78,
     borderTopWidth: 1,
-    borderColor: theme.colors.border,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: theme.spacing.sm,
-    paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.md,
-    paddingBottom: theme.spacing.lg,
+    justifyContent: 'space-around',
+    paddingHorizontal: theme.spacing.sm,
+    paddingTop: theme.spacing.sm,
+    paddingBottom: theme.spacing.md,
   },
-  timerArea: {
+  tab: {
     flex: 1,
-    gap: 5,
-  },
-  timerControl: {
-    gap: 5,
-  },
-  timerLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  timer: {
-    color: '#9AA69D',
-    fontSize: 22,
-    lineHeight: 26,
-    fontWeight: '700',
-  },
-  timeTrack: {
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: theme.colors.primarySoft,
-    overflow: 'hidden',
-  },
-  timeFill: {
-    height: 6,
-    borderRadius: 3,
-  },
-  brandLine: {
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  logoMark: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: theme.colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
+    gap: 3,
   },
-  logoText: {
-    fontSize: 9,
-    fontWeight: '900',
-  },
-  brandText: {
+  label: {
     fontSize: 11,
     fontWeight: '800',
   },
-  homeButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
+  timerIcon: {
+    width: 34,
+    height: 34,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pressed: {
-    opacity: 0.72,
-  },
-  levelArea: {
-    width: 62,
-    alignItems: 'center',
-    gap: 3,
-  },
-  ring: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    borderWidth: 2,
-    borderColor: theme.colors.primary,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: theme.colors.surface,
-  },
-  ringFill: {
+  timerRing: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
-  ringText: {
-    color: theme.colors.primary,
-    fontSize: 12,
-    fontWeight: '900',
-  },
-  levelText: {
-    color: theme.colors.text,
-    fontSize: 12,
-    fontWeight: '900',
-  },
-  wordText: {
-    color: theme.colors.muted,
-    fontSize: 10,
-    fontWeight: '700',
   },
 });
+
+function formatFocusTime(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
+}
+
+function getTimerProgress(remainingSeconds: number, targetSeconds: number) {
+  if (targetSeconds <= 0) {
+    return 0;
+  }
+  return Math.max(0, Math.min(1, remainingSeconds / targetSeconds));
+}

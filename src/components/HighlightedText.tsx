@@ -1,10 +1,10 @@
-import { Text, TextStyle } from 'react-native';
+import { StyleProp, Text, TextStyle } from 'react-native';
 
 type HighlightedTextProps = {
   text: string;
-  terms: string[];
-  style?: TextStyle;
-  highlightStyle?: TextStyle;
+  terms: Array<string | undefined>;
+  style?: StyleProp<TextStyle>;
+  highlightStyle?: StyleProp<TextStyle>;
 };
 
 function escapeRegExp(value: string) {
@@ -12,7 +12,7 @@ function escapeRegExp(value: string) {
 }
 
 export function HighlightedText({ text, terms, style, highlightStyle }: HighlightedTextProps) {
-  const cleanTerms = terms.map((term) => term.trim()).filter(Boolean);
+  const cleanTerms = terms.map((term) => term?.trim()).filter(Boolean) as string[];
 
   if (cleanTerms.length === 0) {
     return <Text style={style}>{text}</Text>;

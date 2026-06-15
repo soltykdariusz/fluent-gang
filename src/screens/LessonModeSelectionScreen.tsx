@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Dumbbell, Newspaper, Sparkles, Trophy } from 'lucide-react-native';
+import { Dumbbell, MessageCircle, Sparkles, Wand2 } from 'lucide-react-native';
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { OptionCard } from '../components/OptionCard';
@@ -15,15 +15,15 @@ type Props = NativeStackScreenProps<RootStackParamList, 'LessonModeSelection'>;
 export function LessonModeSelectionScreen({ navigation, route }: Props) {
   const { t } = useTranslation();
   const iconByMode: Record<LessonMode, ReactNode> = {
-    news: <Newspaper size={20} color={theme.colors.primary} strokeWidth={2.1} />,
-    sport: <Trophy size={20} color={theme.colors.primary} strokeWidth={2.1} />,
-    lifestyle: <Sparkles size={20} color={theme.colors.primary} strokeWidth={2.1} />,
+    standardContext: <Wand2 size={20} color={theme.colors.primary} strokeWidth={2.1} />,
+    funnyStory: <Sparkles size={20} color={theme.colors.primary} strokeWidth={2.1} />,
+    dialogue: <MessageCircle size={20} color={theme.colors.primary} strokeWidth={2.1} />,
     superMemory: <Dumbbell size={20} color={theme.colors.primary} strokeWidth={2.1} />,
   };
 
   return (
     <Screen>
-      <StepHeader title={t('lessonMode')} subtitle="Choose the content style for these five words." />
+      <StepHeader title="Context mode" subtitle="Choose how Fluent Gang should build your vocabulary scene." />
       {lessonModes.map((mode) => (
         <OptionCard
           key={mode.mode}
@@ -33,6 +33,7 @@ export function LessonModeSelectionScreen({ navigation, route }: Props) {
           onPress={() =>
             navigation.navigate('AdGate', {
               selectedWords: route.params.selectedWords,
+              sessionSize: route.params.sessionSize,
               mode: mode.mode,
             })
           }

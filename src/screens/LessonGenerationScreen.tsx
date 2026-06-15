@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Sparkles } from 'lucide-react-native';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { Mascot } from '../components/Mascot';
 import { Screen } from '../components/Screen';
 import { StepHeader } from '../components/StepHeader';
 import { generateLesson } from '../services/openaiLessonService';
@@ -22,10 +23,23 @@ export function LessonGenerationScreen({ navigation, route }: Props) {
       targetLanguage,
       nativeLanguage,
       level,
+      sessionSize: route.params.sessionSize,
     })
-      .then((lesson) => navigation.replace('ReadingLesson', { lesson }))
+      .then((lesson) => {
+        const startModule = route.params.startModule ?? 'context';
+        navigation.replace('ModuleRunner', { lesson, module: startModule, completedModules: [] });
+      })
       .catch(() => setError('Could not generate lesson. Please try again.'));
-  }, [level, nativeLanguage, navigation, route.params.mode, route.params.selectedWords, targetLanguage]);
+  }, [
+    level,
+    nativeLanguage,
+    navigation,
+    route.params.mode,
+    route.params.selectedWords,
+    route.params.sessionSize,
+    route.params.startModule,
+    targetLanguage,
+  ]);
 
   return (
     <Screen scroll={false}>
@@ -33,7 +47,8 @@ export function LessonGenerationScreen({ navigation, route }: Props) {
         <View style={styles.iconCircle}>
           <Sparkles size={34} color={theme.colors.primary} strokeWidth={2.1} />
         </View>
-        <StepHeader title="Generating lesson" subtitle="Mock AI is preparing your contextual text, quizzes, definitions, and shadowing script." />
+        <StepHeader title="Building your Word Workout" subtitle="Creating one simple context sentence for each word." />
+        <Mascot state="thinking" message="I’m building tiny contexts. One word, one clear sentence." />
         <ActivityIndicator size="large" color={theme.colors.primary} style={styles.loader} />
       </View>
       {error ? <Text style={styles.error}>{error}</Text> : null}

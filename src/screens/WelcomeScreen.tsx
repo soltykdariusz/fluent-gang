@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { AppButton } from '../components/AppButton';
+import { GuideMascot } from '../components/GuideMascot';
 import { Screen } from '../components/Screen';
 import { RootStackParamList } from '../types/navigation';
 import { theme } from '../theme/theme';
@@ -17,6 +18,7 @@ export function WelcomeScreen({ navigation }: Props) {
         <Text style={styles.brand}>{t('appName')}</Text>
         <Text style={styles.slogan}>{t('slogan')}</Text>
         <Text style={styles.body}>{t('welcomeBody')}</Text>
+        <GuideMascot message="Fluent Gang helps you grow active vocabulary through daily word workouts." />
       </View>
       <AppButton title={t('start')} onPress={() => navigation.navigate('Onboarding')} />
     </Screen>

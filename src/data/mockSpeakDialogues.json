@@ -1,0 +1,192 @@
+{
+  "reluctant": [
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "talking",
+      "text": "I saw Tom near the microphone yesterday."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "thinking",
+      "text": "Did he speak?"
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "confused",
+      "text": "Not at first. He looked reluctant."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "talking",
+      "text": "Maybe he needed a moment."
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "happy",
+      "text": "Yes. After one small try, he felt less reluctant."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "confident",
+      "text": "That happens. A tiny start can help."
+    }
+  ],
+  "simple": [
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "talking",
+      "text": "I made dinner yesterday."
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "surprised",
+      "text": "Was it hard?"
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "happy",
+      "text": "No, it was simple."
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "thinking",
+      "text": "What did you make?"
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "talking",
+      "text": "Rice, eggs, and a small salad."
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "confident",
+      "text": "Nice. A simple meal is perfect after work."
+    }
+  ],
+  "market": [
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "talking",
+      "text": "I went outside early yesterday."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "thinking",
+      "text": "Where did you go?"
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "happy",
+      "text": "To the market near my street."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "talking",
+      "text": "Did you buy fruit?"
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "confident",
+      "text": "Yes. The apples at the market were fresh."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "happy",
+      "text": "Good. I like that place too."
+    }
+  ],
+  "bright": [
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "surprised",
+      "text": "Your room looks different today."
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "happy",
+      "text": "I opened the big window."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "talking",
+      "text": "Now the room is bright."
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "confident",
+      "text": "It helps me read."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "thinking",
+      "text": "I should do that in my room."
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "talking",
+      "text": "A bright room feels easier in the morning."
+    }
+  ],
+  "curious": [
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "thinking",
+      "text": "I saw a strange old map yesterday."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "surprised",
+      "text": "A map? Where?"
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "talking",
+      "text": "In a small shop near the station."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "happy",
+      "text": "Now I am curious."
+    },
+    {
+      "characterId": "ray",
+      "characterName": "Ray",
+      "emotion": "confident",
+      "text": "Me too. I want to know what it shows."
+    },
+    {
+      "characterId": "mia",
+      "characterName": "Mia",
+      "emotion": "talking",
+      "text": "Let's ask the shop owner tomorrow."
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+[
+  {
+    "id": "mock-reluctant",
+    "text": "reluctant",
+    "language": "en",
+    "level": "B1",
+    "translation": "niechetny",
+    "definition": "Not really wanting to do something.",
+    "example": "He was reluctant to speak.",
+    "discoveryStatus": "new"
+  },
+  {
+    "id": "mock-cautious",
+    "text": "cautious",
+    "language": "en",
+    "level": "B1",
+    "translation": "ostrozny",
+    "definition": "Careful because something may be risky.",
+    "example": "He was cautious on the wet road.",
+    "discoveryStatus": "new"
+  },
+  {
+    "id": "mock-eager",
+    "text": "eager",
+    "language": "en",
+    "level": "B1",
+    "translation": "chetny",
+    "definition": "Really wanting to do something.",
+    "example": "He was eager to try.",
+    "discoveryStatus": "new"
+  }
+]

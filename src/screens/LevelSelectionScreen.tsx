@@ -25,7 +25,7 @@ export function LevelSelectionScreen({ navigation }: Props) {
           selected={selected === level.code}
           onPress={() => {
             setLevel(level.code);
-            navigation.navigate('Home');
+            navigation.navigate('InterestSelection');
           }}
         />
       ))}

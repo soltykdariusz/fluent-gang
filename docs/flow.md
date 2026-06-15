@@ -1,323 +1,238 @@
-# Fluent Gang User Flow
+# Fluent Gang Word Gym Flow
 
-Fluent Gang is a mobile-first language learning app focused on extending vocabulary through context, AI-generated micro-texts, true/false quizzes, shadowing, focus tracking, and spaced repetition.
+Fluent Gang is a contextual vocabulary growth app for active vocabulary.
 
-## 1. Onboarding
+It is not a traditional language course, not a grammar app, and not a long-reading product.
 
-The user chooses:
+## Core Principle
 
-- interface language
-- native language
-- target learning language
+**One word = one very simple sentence.**
 
-The app should support learning at least 10 popular languages and should be architected for many interface languages in the future.
+Good:
 
-Initial target learning languages:
+```text
+reluctant
+He was reluctant to speak.
+```
 
-- English
-- Spanish
-- French
-- German
-- Italian
-- Portuguese
-- Polish
-- Japanese
-- Korean
-- Chinese
+Bad:
 
-## 2. Level Selection
+```text
+Despite his overwhelming reluctance, he eventually addressed the complicated issue in front of the committee.
+```
 
-The user has two options:
+Reason: Fluent Gang trains the word, not reading-comprehension endurance.
 
-- choose their level manually
-- take a short level test
+## MVP Session Scope
 
-Manual levels:
+For the current MVP runtime, the main workout starts with one selected mock word or one phrasal verb.
 
-- A1
-- A2
-- B1
-- B2
-- C1
-- C2
+The user trains that one item inside Word Gym. Multi-word sessions can return later as a batch mode, but the current flow should stay simple and focused.
 
-The level test should be short and only estimate the user’s level. It should not feel like a school exam.
+## Future Session Sizes
 
-## 3. Word Discovery
+Session size means words per workout session, not words per day.
 
-After the level is known, the user can generate 5 or 6 words.
+- Solo: 1 word
+- Quick: 3 words
+- Standard: 5 words
+- Deep: 8 words
 
-The app should support both options:
+Standard can be the default, but Solo must always be possible.
 
-- 5 words
-- 6 words
+## Current MVP Flow
 
-There is a playful inspiration from Nikola Tesla’s 3, 6, 9 idea, but the app should not overuse it.
+1. Start workout
+2. Word Gym opens for one mock word
+3. User chooses any exercise mode
+4. Completed mode returns to Word Gym
+5. User repeats, chooses another mode, or taps Finish workout
+6. Finish workout leads to word self-assessment
 
-For each proposed word, the user can mark it as:
+The workout is a gym, not a forced linear lesson path.
 
-- I know it — remove from learning
-- I recognize it — use for reinforcement
-- New for me — add to lesson
-- Show meanings — show additional meanings if the word has more than one meaning
+## Word Gym Hub
 
-The goal is to let the user consciously choose words before starting a lesson.
+All exercise modes are visible as practice machines. The user chooses the machine they want to use, completes short rounds, then returns to the gym.
 
-## 4. Word Preview
+Current machines:
 
-Before generating the lesson, the user sees a preview of selected words.
+- Context
+- The News
+- Use
+- Speak
+- Argue
+- Ask
+- Super Memo
+- Feel
+- Same / Different
+- Best Sentence
+- Fast Flash
 
-Each word should show:
+Completed modes can show a small checkmark, but the user can repeat them. The UI should avoid a strong "main workout" versus "extra practice" hierarchy.
 
-- word
-- simple definition in the target learning language
-- example sentence
-- optional translation visible only after clicking
-- additional meanings visible after clicking
-- pronunciation/audio placeholder
+## Exercise Modes
 
-Definitions should be in the language being learned.
+### Context
 
-Example: if the user learns English, English words should have English definitions.
+Context is a short place-based scene with two characters.
 
-## 5. Lesson Mode Selection
+Flow:
 
-After approving 5–6 words, the user chooses a lesson mode:
+1. Show a compact scene illustration and place title, for example `At the doctor`.
+2. Read the place title automatically. A small speaker icon next to the title replays it.
+3. Each `Next` reveals one dialogue line. Previous lines stay visible.
+4. The target word can be highlighted subtly in blue when it appears in dialogue.
+5. After the final dialogue line, one more `Next` reveals the question and three choices.
 
-- News
-- Sport
-- Lifestyle
-- Psychology
-- Super Memory
+The Context progress bar tracks scene micro-steps: title, each dialogue line, and the question. It should not represent an unknown number of optional repeats.
 
-Super Memory mode should generate an exaggerated, vivid, funny, memorable story that connects all selected words into one single thread. It should use memory techniques, strong associations, absurd imagery, emotional hooks, and clear context.
+The screen should gently auto-scroll as new content appears so the active content stays centered. The page background should be white, with only the scene rectangle using a subtle contextual tint. `Next`, `Back to gym`, and paired end actions stay fixed at the same bottom height.
 
-Future modes may include:
+Exercise screens should use a shared top chrome component containing the progress bar and close X. Tapping X must stop any active speech/audio before leaving the exercise.
 
-- Business
-- Tech
-- Travel
-- Daily Conversation
+Context titles and dialogue lines use the same reading reveal principle as The News: the full text is visible first in a readable gray, then the darker text reveals over it while the line is read. The target word can be highlighted in the darker reveal. Speaker icons turn blue while their audio is playing and can be tapped again to stop playback.
 
-## 6. AI Generated Micro Text
+Module titles use a shared centered audio-title component in Context and The News. The title row is centered as a whole, but the text reveal itself starts from the left. Learning text should avoid pure black; use a softer dark ink color in light mode.
 
-The app generates a short text using all selected words.
+Context answer choices should stay visually calm. Do not use green borders on the selected answer; keep the normal light gray border. If the user picks a wrong answer, only that answer becomes disabled and gray, and the user keeps trying. A correct answer can make the selected answer text green while keeping the gray border. A correct answer turns the fixed bottom action panel light green all the way to the bottom edge and shows only a left-aligned check icon plus `Excellent!` above the next action buttons. Do not show helper text such as `Try another scene with this word?` in this completed state. Buttons in this panel should stay minimalist, without contrasting borders; secondary actions such as `Back to gym` use a light green fill.
 
-The text must be adjusted to the user’s level:
+### The News
 
-- A1: 1–2 very simple sentences
-- A2: 2–4 simple sentences
-- B1: short paragraph
-- B2: 1–2 short paragraphs
-- C1/C2: more natural and advanced text
+The News replaces the old Check module.
 
-All selected words should be bolded.
+It checks whether the user understands the target word in context, but through a tiny news-style story instead of a school-like True/False quiz.
 
-When the user clicks a bolded word, the app should show:
+Each The News module has three rounds for the selected word.
 
-- definition
-- example
-- other meanings
-- pronunciation/audio
-- option to mark as known
+One round:
 
-## 7. Reading and Listening Stage
+1. Short headline with replay audio.
+2. `Next` reveals the first part of the mini news story in one shared article frame and reads it automatically.
+3. `Next` reveals the second story part inside the same article frame and reads it automatically.
+4. `Next` reveals one comprehension question with a proposed answer.
+5. The user confirms with the OK button or rejects with the not-OK button.
+6. A correct answer shows the shared fixed-bottom `Excellent!` success panel.
 
-The user can:
+The story should have around five very simple sentences. The target word should appear twice, be highlighted in the story, and remain the main learning effort. The story must stay light and short. It should feel like a mini article, not a long reading task.
 
-- read the text
-- listen to the narrator
-- do both
+Text length should scale with the learner level. Lower levels use shorter sentences and shorter scenes/news. Higher levels can use longer texts, more detail, and more natural phrasing while keeping the target word as the main learning effort.
 
-After finishing, the user marks:
+The News uses the same reveal rhythm as Context: compact top progress, no Word Gym/module header, first a title with audio, then content, then question. The visual treatment should differ from Context by using a mini newspaper/news direction instead of character dialogue.
 
-- I read it
-- I listened
-- I’m ready
+The title should reveal like dialogue text from the left, with the full title visible first in readable gray and a plain speaker icon with no circular button. The article text should also type in like dialogue text, but without dialogue bubbles. Put the article in one light gray-bordered text box. The story is split into two parts, but both parts live in that same article box; each visible part has its own replay speaker icon on the left and text starting to the right of it. Show each part first in readable gray, then reveal the darker generated text over it. Part audio starts together with the darker text reveal, and the reveal pace should roughly match the reading speed. Speaker icons turn blue while their audio is playing and can be tapped again to stop playback. `Next` stays disabled until the automatic reading and the text reveal have finished. Do not show a repeated label such as `Mini report`. Like Context, the screen starts near the top and then gently scrolls upward as new elements appear. The OK and not-OK answer buttons start with identical neutral styling. A wrong choice only becomes disabled and gray, and the user keeps trying. A correct choice shows the same shared fixed bottom `Excellent!` panel component as Context, with both `Next story` and `Back to gym` available. Shared components should be preferred for repeated patterns such as the success panel and calm answer choices.
 
-Then the user moves to the context quiz.
+### Podcast
 
-## 8. Context True/False Quiz
+Podcast replaces the old Use presentation for this module slot.
 
-The quiz should have one question per screen.
+Podcast should not look like Context or The News. It starts with the shared top chrome only, then a podcaster icon and a large speaker button. Do not show `Word Gym`, the target word pill, `Use`, or `Set 1/3` in the module body.
 
-Each question should refer to the generated text and check whether the user understood the practiced words in context.
+The user hears a short hidden podcast-style intro/story. The transcript is not visible. After the audio finishes, the task appears:
 
-Example question:
+```text
+Select 3 words you heard.
+Put them in the right order.
+```
 
-“In the text, reliable means that someone can be trusted.”
+The user selects three word chips and orders them. Selected chips and available chips should keep the same calm visual language, not suddenly switch to a different color system. When the user taps a correct chip, it moves to the answer area and its original position becomes an invisible empty slot without a border. When the user taps a wrong chip, it stays in the available list, becomes disabled, and turns gray immediately. If the user selected the correct words in the wrong order, tapping `Check` should gently animate them into the correct order so the pattern becomes visible, gray out the `Check` button, and show the shared fixed-bottom `Almost excellent!` panel. Fully correct attempts use the shared fixed-bottom `Excellent!` success panel with `Back to gym`.
 
-True / False
+Rules:
 
-Feedback should be positive and progress-focused.
+- no keyboard typing
+- no drag and drop in MVP
+- tap a word to select it
+- tap a selected word to remove it
+- wrong words gray out instead of disappearing
+- wrong order self-corrects into the target pattern after `Check`
+- after `Check`, the check button becomes inactive/gray
+- the podcast story is audio-first and hidden
+- the interaction appears only after audio finishes
+- each Word Gym machine should be allowed to have its own logic, not the same visible template
 
-If the user answers correctly:
+Podcast should reuse shared exercise chrome, buttons, success panel, and reusable selection/chip UI.
 
-- show a small animation or reward
-- reinforce progress
+### Shadowing
 
-If the user answers incorrectly:
+Shadowing replaces the old Speak presentation.
 
-- do not shame the user
-- show helpful feedback
-- refer back to the relevant part of the text
-- encourage another try
+The module uses the shared compact exercise top bar with progress and X. Do not show the old `Word Gym` header, target-word pill, `Speak`, or `Set` label inside the body.
 
-The goal is engagement and progress, not school-style grading.
+Each word should have three short shadowing scenes in mock JSON while the database is not ready. Each scene has 4-6 spoken lines and a place title such as `At the dentist`, `At the bar`, or `In the shop`. Under the top bar, show a compact rounded square with all people involved in the shadowing dialogue plus `You`. Later, if the user has a profile photo/avatar, `You` can be replaced by that asset.
 
-## 9. Quiz Result
+The active scene title sits centered under the character square, with a small speaker icon like Context and The News. When a new scene starts, the title is read first, then the first speaker line starts automatically. This title pattern is a candidate for a shared module title component.
 
-At the end, show:
+Each rep has one simple step: the guide character says the line with audio and a replay speaker. When the audio finishes, the active speaker bubble gets a subtle pulsing `repeat after me` cue. There is no separate duplicated `You` text step.
 
-- score
-- number of trained words
-- number of words strengthened
-- words that need more practice
-- completed focus time if available
+The user does not need pronunciation scoring in MVP. The important action is repeating the sentence out loud or quietly, then tapping `I repeated it`. Speaker lines stay stacked one under another as the dialogue grows. Only the temporary repeat cue disappears when the next speaker line appears. The text should reveal with the same calm gray-to-ink rhythm used in Context and The News. At the end, use the shared fixed-bottom success panel with a continuation action and `Back to gym`.
 
-The message should emphasize consistency and progress.
+### Argue
 
-Example:
+Two characters disagree or correct each other about the situation. The user answers a simple meaning question after the short exchange.
 
-“You trained 6 words today. 4 are stronger now. 2 will come back soon.”
+### Ask
 
-## 10. Shadowing Stage
+The word appears inside short, natural questions and answers. The module should feel like a person asking about real situations, not a grammar drill.
 
-After the quiz, the app gives the user a shadowing text.
+### Super Memo
 
-The shadowing text should:
+Not final yet.
 
-- use the same selected words again
-- preferably use them in a slightly different context
-- be level-adjusted
-- be easy to read aloud
-- support narrator audio
-- support adjustable playback speed
-- support subtitles on/off
+The intended direction is a short memorable story or dialogue followed by one simple content question, for example True/False. It should help recall without becoming a long reading task.
 
-The user listens, reads, and repeats after the narrator.
+### Feel
 
-For MVP, the app does not need to check pronunciation.
+Choose the feeling. The user senses meaning without translating.
 
-The user self-assesses:
+### Same / Different
 
-- Easy
-- Okay
-- Hard
+The user compares two simple sentences and decides if they mean the same idea.
 
-The main goal is to understand what they say and reinforce active vocabulary.
+### Best Sentence
 
-## 11. Review Scheduling
+The user picks the best/simple correct use of the word.
 
-After shadowing, the app schedules future review using spaced repetition / forgetting curve logic.
+### Fast Flash
 
-Example intervals:
+Fast contextual flashcards:
 
-- 1 day
-- 3 days
-- 7 days
-- 14 days
-- 30 days
+```text
+reluctant
+She was reluctant to join us.
 
-After completing the lesson, show a message:
+Got it / Again
+```
 
-“Nice. These words will come back tomorrow.”
+## Finish Workout
 
-or
+Finish workout does not end silently.
 
-“Next review: in 3 days.”
+Flow:
 
-## 12. Review Mode
+1. Finish workout
+2. Nice workout
+3. How do these words feel now?
+4. Word self-assessment
+5. Save progress or Skip
 
-When the user returns to a word set for review, they can:
+## Word Self-Assessment
 
-- reuse the previous text
-- generate a new text with the same words
-- take a quick true/false quiz
-- do shadowing again
+Question:
 
-Generating a new context is important because it helps the user understand words more deeply instead of memorizing one sentence.
+```text
+How do these words feel now?
+```
 
-## 13. Word Progress States
+For each word:
 
-Each word should have a progress state:
+- Still new -> `new`
+- I recognize it -> `recognized`
+- I can use it -> `active`
 
-- New
-- Recognized
-- Practiced
-- Familiar
-- Active vocabulary
-- Mastered
+For Solo sessions, show the single word prominently and ask:
 
-The app should track both:
+```text
+How does this word feel now?
+```
 
-- passive vocabulary — words the user understands
-- active vocabulary — words the user can use
-
-## 14. Vocabulary Map
-
-The app should eventually show a vocabulary progress dashboard:
-
-- Active vocabulary count
-- Recognized vocabulary count
-- Words reviewed today
-- Words to review today
-- Strong words this week
-- Current streak
-- Focus time
-
-This reinforces the idea that the user’s vocabulary is growing.
-
-## 15. Focus Tracking
-
-The app should include a focus timer/session tracker.
-
-The goal:
-
-- encourage distraction-free learning
-- measure how much focused time the user spends learning
-- connect focus time with progress
-
-A focus session can start when the lesson begins and end after shadowing or review.
-
-## 16. Product Positioning
-
-The app is not just flashcards.
-
-The app is not a school test.
-
-The app is not only an AI tutor.
-
-Core positioning:
-
-“Extend your vocabulary through stories, context, and shadowing.”
-
-Alternative:
-
-“Fluent Gang helps you turn new words into real vocabulary.”
-
-## 17. MVP Priorities
-
-The first MVP should include:
-
-1. onboarding
-2. level selection or short level test placeholder
-3. word generation with 5 or 6 words
-4. word status selection
-5. word preview with definitions
-6. mode selection
-7. mock AI generated text
-8. reading/listening screen
-9. true/false context quiz
-10. result screen
-11. shadowing screen
-12. simple review scheduling
-13. basic word progress states
-
-Keep the first implementation simple.
-
-Use mock data where needed.
-
-Do not over-engineer.
-
-The goal is to create a clear flow and build the smallest usable version first.
+The user can skip. Assessment should not block the workout.

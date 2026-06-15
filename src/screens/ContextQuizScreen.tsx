@@ -1,21 +1,20 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { Check, ChevronLeft, ChevronRight, ListChecks, X } from 'lucide-react-native';
+import { Check, ChevronRight, ListChecks, X } from 'lucide-react-native';
 import { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { AppButton } from '../components/AppButton';
-import { QuizNavButton } from '../components/QuizNavButton';
 import { QuizProgress } from '../components/QuizProgress';
 import { Screen } from '../components/Screen';
-import { StepHeader } from '../components/StepHeader';
+import { playFailureSound, playSuccessSound } from '../services/soundService';
+import { useTheme } from '../theme/ThemeProvider';
 import { theme } from '../theme/theme';
 import { RootStackParamList } from '../types/navigation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ContextQuiz'>;
 
 export function ContextQuizScreen({ navigation, route }: Props) {
-  const { t } = useTranslation();
-  const { lesson } = route.params;
+  const appTheme = useTheme();
+  const { lesson, completedModules = [] } = route.params;
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -27,7 +26,16 @@ export function ContextQuizScreen({ navigation, route }: Props) {
   const isLastQuestion = currentIndex === lesson.contextQuiz.length - 1;
 
   const answerQuestion = (answer: boolean) => {
+    if (answeredCurrent) {
+      return;
+    }
+
     setAnswers({ ...answers, [question.id]: answer });
+    if (answer !== question.answer) {
+      playFailureSound();
+      return;
+    }
+    playSuccessSound();
   };
 
   const goNext = () => {
@@ -37,62 +45,102 @@ export function ContextQuizScreen({ navigation, route }: Props) {
     }
 
     if (complete) {
-      navigation.navigate('Definitions', { lesson });
+      navigation.replace('WordPreview', {
+        lesson,
+        completedModules: Array.from(new Set([...completedModules, 'the_news'])),
+      });
     }
   };
 
   return (
     <Screen>
-      <StepHeader
-        title={t('contextQuiz')}
-        subtitle={complete ? `Score: ${score}/${lesson.contextQuiz.length}` : 'One word at a time. You can go back before continuing.'}
-      />
+      <Text style={styles.instruction}>The News.</Text>
       <QuizProgress current={currentIndex + 1} total={lesson.contextQuiz.length} />
       <View style={styles.question}>
         <Text style={styles.wordLabel}>{question.wordText ?? 'Word'}</Text>
-        <Text style={styles.statement}>{question.statement}</Text>
+        {question.baseSentence ? <Text style={styles.baseSentence}>{question.baseSentence}</Text> : null}
+        <Text style={styles.statement}>{question.questionText ?? question.statement}</Text>
         <View style={styles.row}>
-          <AppButton
-            title={t('true')}
+          <Pressable
+            accessibilityRole="button"
+            disabled={answeredCurrent}
             onPress={() => answerQuestion(true)}
-            variant={selectedAnswer === true ? 'primary' : 'secondary'}
-            icon={<Check size={17} color={selectedAnswer === true ? theme.colors.surface : theme.colors.primary} strokeWidth={2.4} />}
-          />
-          <AppButton
-            title={t('false')}
+            style={[
+              styles.answerButton,
+              { borderColor: appTheme.colors.border, backgroundColor: appTheme.colors.surface },
+              getAnswerStyle({
+                answer: true,
+                selectedAnswer,
+                correctAnswer: question.answer,
+                colors: appTheme.colors,
+              }),
+            ]}
+          >
+            <Check
+              size={34}
+              color={getAnswerIconColor({
+                answer: true,
+                selectedAnswer,
+                correctAnswer: question.answer,
+                colors: appTheme.colors,
+              })}
+              strokeWidth={2.8}
+            />
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            disabled={answeredCurrent}
             onPress={() => answerQuestion(false)}
-            variant={selectedAnswer === false ? 'primary' : 'secondary'}
-            icon={<X size={17} color={selectedAnswer === false ? theme.colors.surface : theme.colors.primary} strokeWidth={2.4} />}
+            style={[
+              styles.answerButton,
+              { borderColor: appTheme.colors.border, backgroundColor: appTheme.colors.surface },
+              getAnswerStyle({
+                answer: false,
+                selectedAnswer,
+                correctAnswer: question.answer,
+                colors: appTheme.colors,
+              }),
+            ]}
+          >
+            <X
+              size={34}
+              color={getAnswerIconColor({
+                answer: false,
+                selectedAnswer,
+                correctAnswer: question.answer,
+                colors: appTheme.colors,
+              })}
+              strokeWidth={2.8}
+            />
+          </Pressable>
+        </View>
+      </View>
+      {answeredCurrent ? (
+        <View style={styles.continueWrap}>
+          <AppButton
+            title={isLastQuestion ? 'Continue' : 'Next'}
+            onPress={goNext}
+            icon={
+              isLastQuestion ? (
+                <ListChecks size={18} color={theme.colors.surface} strokeWidth={2.2} />
+              ) : (
+                <ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />
+              )
+            }
           />
         </View>
-        {answeredCurrent ? <Text style={styles.explanation}>{question.explanation}</Text> : null}
-      </View>
-      <View style={styles.navRow}>
-        <QuizNavButton
-          title="Back"
-          onPress={() => setCurrentIndex((value) => Math.max(0, value - 1))}
-          disabled={currentIndex === 0}
-          icon={<ChevronLeft size={17} color={theme.colors.primary} strokeWidth={2.4} />}
-        />
-        <QuizNavButton
-          title={isLastQuestion ? t('definitions') : t('next')}
-          onPress={goNext}
-          disabled={!answeredCurrent || (isLastQuestion && !complete)}
-          variant="solid"
-          icon={
-            isLastQuestion ? (
-              <ListChecks size={18} color={theme.colors.surface} strokeWidth={2.2} />
-            ) : (
-              <ChevronRight size={17} color={theme.colors.surface} strokeWidth={2.4} />
-            )
-          }
-        />
-      </View>
+      ) : null}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  instruction: {
+    color: theme.colors.text,
+    fontSize: 20,
+    lineHeight: 27,
+    fontWeight: '900',
+  },
   question: {
     gap: theme.spacing.sm,
     borderRadius: theme.radius.sm,
@@ -106,6 +154,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 23,
     fontWeight: '700',
+  },
+  baseSentence: {
+    color: theme.colors.primary,
+    fontSize: 20,
+    lineHeight: 29,
+    fontWeight: '900',
   },
   wordLabel: {
     alignSelf: 'flex-start',
@@ -121,17 +175,60 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     gap: theme.spacing.sm,
-  },
-  navRow: {
-    flexDirection: 'row',
-    gap: theme.spacing.sm,
     justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: theme.spacing.sm,
   },
-  explanation: {
-    color: theme.colors.muted,
-    fontSize: 14,
-    lineHeight: 20,
+  answerButton: {
+    width: 82,
+    height: 64,
+    borderWidth: 1,
+    borderRadius: theme.radius.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.xs,
+    paddingHorizontal: theme.spacing.sm,
+  },
+  continueWrap: {
+    marginTop: 'auto',
+    paddingTop: theme.spacing.md,
   },
 });
+
+type AnswerStyleInput = {
+  answer: boolean;
+  selectedAnswer?: boolean;
+  correctAnswer: boolean;
+  colors: ReturnType<typeof useTheme>['colors'];
+};
+
+function getAnswerStyle({ answer, selectedAnswer, correctAnswer, colors }: AnswerStyleInput) {
+  if (selectedAnswer === undefined) {
+    return null;
+  }
+
+  if (answer === correctAnswer) {
+    return { borderColor: colors.primary, backgroundColor: colors.primarySoft };
+  }
+
+  if (selectedAnswer === answer && selectedAnswer !== correctAnswer) {
+    return { borderColor: colors.danger, backgroundColor: colors.dangerSoft };
+  }
+
+  return { opacity: 0.45 };
+}
+
+function getAnswerIconColor({ answer, selectedAnswer, correctAnswer, colors }: AnswerStyleInput) {
+  if (selectedAnswer === undefined) {
+    return colors.accent;
+  }
+
+  if (answer === correctAnswer) {
+    return colors.primary;
+  }
+
+  if (selectedAnswer === answer && selectedAnswer !== correctAnswer) {
+    return colors.danger;
+  }
+
+  return colors.muted;
+}
